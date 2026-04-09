@@ -3,6 +3,7 @@ from fastapi import APIRouter, UploadFile, Form, File
 from typing import Optional
 import base64
 
+from ..config import settings
 from ..graph.builder import build_incident_graph
 from ..graph.state import IncidentState
 from ..observability.correlation import new_incident_id, bind_incident
@@ -26,7 +27,7 @@ async def submit_incident(
     text: str = Form(...),
     reporter_name: str = Form("anonymous"),
     reporter_email: str = Form("anonymous@example.com"),
-    llm_provider: str = Form("mock"),
+    llm_provider: Optional[str] = Form(None),
     log_file: UploadFile = File(...),
     screenshot: Optional[UploadFile] = File(None),
 ):
@@ -46,7 +47,7 @@ async def submit_incident(
         "image_b64": image_b64,
         "reporter_name": reporter_name,
         "reporter_email": reporter_email,
-        "llm_provider": llm_provider,
+        "llm_provider": llm_provider or settings.llm_provider,
         "errors": [],
     }
 

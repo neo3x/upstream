@@ -1,0 +1,259 @@
+# eShop snapshot indexing manifest
+# Used by the Phase 4 indexer to know which files to chunk and embed.
+
+source_repository: https://github.com/dotnet/eShop
+source_commit: b81ad9557090cc37233b9d1a0a729db7b44b6f14
+snapshot_root: ../eshop_snapshot
+
+files:
+  - path: eShop.ServiceDefaults/AuthenticationExtensions.cs
+    service: ServiceDefaults
+    language: csharp
+    role: auth_configuration
+    relevant_to_scenarios: [1]
+    description: |
+      Shared authentication helper used by Ordering.API. Configures JWT bearer
+      auth using Identity URL and audience settings, making the Ordering to
+      Identity relationship explicit.
+
+  - path: Ordering.API/Program.cs
+    service: Ordering
+    language: csharp
+    role: bootstrap
+    relevant_to_scenarios: [1, 2]
+    description: |
+      Ordering API bootstrap. Maps the Orders API and requires authorization on
+      the route group, showing that order endpoints depend on upstream auth.
+
+  - path: Ordering.API/Extensions/Extensions.cs
+    service: Ordering
+    language: csharp
+    role: service_registration
+    relevant_to_scenarios: [1, 2]
+    description: |
+      Registers default authentication, the local identity adapter, and RabbitMQ
+      EventBus subscriptions used by Ordering.
+
+  - path: Ordering.API/Apis/OrderServices.cs
+    service: Ordering
+    language: csharp
+    role: api_support
+    relevant_to_scenarios: [1]
+    description: |
+      Aggregates per-request services for OrdersApi, including IIdentityService,
+      which is used to resolve the current authenticated user.
+
+  - path: Ordering.API/Apis/OrdersApi.cs
+    service: Ordering
+    language: csharp
+    role: api_endpoint
+    relevant_to_scenarios: [1]
+    description: |
+      Main ordering endpoints. Includes the user-scoped get-orders path that
+      reads the current user identity from auth claims.
+
+  - path: Ordering.API/Infrastructure/Services/IIdentityService.cs
+    service: Ordering
+    language: csharp
+    role: identity_abstraction
+    relevant_to_scenarios: [1]
+    description: |
+      Small abstraction used by Ordering to access authenticated user claims
+      without binding endpoint code directly to HttpContext.
+
+  - path: Ordering.API/Infrastructure/Services/IdentityService.cs
+    service: Ordering
+    language: csharp
+    role: identity_claim_adapter
+    relevant_to_scenarios: [1]
+    description: |
+      Claim-based identity adapter. Reads the sub claim and user name from the
+      current principal after JWT bearer authentication has succeeded.
+
+  - path: Identity.API/Program.cs
+    service: Identity
+    language: csharp
+    role: bootstrap
+    relevant_to_scenarios: [1]
+    description: |
+      Identity API bootstrap. Configures ASP.NET Identity, IdentityServer,
+      signing credentials, and controller routing for auth-related flows.
+
+  - path: Identity.API/Configuration/Config.cs
+    service: Identity
+    language: csharp
+    role: auth_configuration
+    relevant_to_scenarios: [1]
+    description: |
+      Defines API resources, scopes, and clients, including the orders scope and
+      Ordering Swagger client used by downstream services.
+
+  - path: Ordering.API/Application/DomainEventHandlers/OrderStatusChangedToStockConfirmedDomainEventHandler.cs
+    service: Ordering
+    language: csharp
+    role: domain_event_handler
+    relevant_to_scenarios: [2]
+    description: |
+      Domain event handler that reacts to stock confirmation and enqueues an
+      OrderStatusChangedToStockConfirmed integration event for publication.
+
+  - path: Ordering.API/Application/IntegrationEvents/Events/OrderStatusChangedToStockConfirmedIntegrationEvent.cs
+    service: Ordering
+    language: csharp
+    role: integration_event
+    relevant_to_scenarios: [2]
+    description: |
+      Integration event emitted by Ordering after stock confirmation. This is the
+      event consumed by PaymentProcessor in the current eShop flow.
+
+  - path: Ordering.API/Application/IntegrationEvents/OrderingIntegrationEventService.cs
+    service: Ordering
+    language: csharp
+    role: integration_service
+    relevant_to_scenarios: [2]
+    description: |
+      Ordering's integration-event service. Persists events, publishes them
+      through IEventBus, and marks publish state in the event log.
+
+  - path: Ordering.API/Application/IntegrationEvents/EventHandling/OrderPaymentSucceededIntegrationEventHandler.cs
+    service: Ordering
+    language: csharp
+    role: event_handler
+    relevant_to_scenarios: [2]
+    description: |
+      Ordering-side consumer for OrderPaymentSucceededIntegrationEvent. Converts
+      the incoming event into a SetPaidOrderStatusCommand.
+
+  - path: Ordering.API/Application/IntegrationEvents/Events/OrderPaymentSucceededIntegrationEvent.cs
+    service: Ordering
+    language: csharp
+    role: integration_event
+    relevant_to_scenarios: [2]
+    description: |
+      Ordering's local event contract for payment-success messages received from
+      the EventBus.
+
+  - path: Ordering.API/Application/Commands/SetPaidOrderStatusCommandHandler.cs
+    service: Ordering
+    language: csharp
+    role: command_handler
+    relevant_to_scenarios: [2]
+    description: |
+      Command handler that loads the order and moves it into the paid state after
+      a payment-success event is handled.
+
+  - path: PaymentProcessor/Program.cs
+    service: PaymentProcessor
+    language: csharp
+    role: bootstrap
+    relevant_to_scenarios: [2]
+    description: |
+      PaymentProcessor bootstrap. Registers the RabbitMQ EventBus and subscribes
+      to OrderStatusChangedToStockConfirmedIntegrationEvent.
+
+  - path: PaymentProcessor/IntegrationEvents/EventHandling/OrderStatusChangedToStockConfirmedIntegrationEventHandler.cs
+    service: PaymentProcessor
+    language: csharp
+    role: event_handler
+    relevant_to_scenarios: [2]
+    description: |
+      Handles the stock-confirmed event and publishes either a payment-succeeded
+      or payment-failed integration event.
+
+  - path: PaymentProcessor/IntegrationEvents/Events/OrderStatusChangedToStockConfirmedIntegrationEvent.cs
+    service: PaymentProcessor
+    language: csharp
+    role: integration_event
+    relevant_to_scenarios: [2]
+    description: |
+      PaymentProcessor-side contract for the stock-confirmed event that triggers
+      payment processing.
+
+  - path: PaymentProcessor/IntegrationEvents/Events/OrderPaymentSucceededIntegrationEvent.cs
+    service: PaymentProcessor
+    language: csharp
+    role: integration_event
+    relevant_to_scenarios: [2]
+    description: |
+      Payment-success event published by PaymentProcessor in the current pinned
+      eShop commit.
+
+  - path: PaymentProcessor/PaymentOptions.cs
+    service: PaymentProcessor
+    language: csharp
+    role: configuration
+    relevant_to_scenarios: [2]
+    description: |
+      Small option object controlling the simulated payment outcome in the demo
+      payment flow.
+
+  - path: EventBus/Abstractions/IEventBus.cs
+    service: EventBus
+    language: csharp
+    role: abstraction
+    relevant_to_scenarios: [2]
+    description: |
+      Minimal publish abstraction used by services to emit integration events.
+
+  - path: EventBus/Abstractions/IIntegrationEventHandler.cs
+    service: EventBus
+    language: csharp
+    role: abstraction
+    relevant_to_scenarios: [2]
+    description: |
+      Generic handler interface implemented by consumers of integration events
+      across services.
+
+  - path: EventBus/Abstractions/EventBusSubscriptionInfo.cs
+    service: EventBus
+    language: csharp
+    role: subscription_metadata
+    relevant_to_scenarios: [2]
+    description: |
+      Stores event-type mappings and JSON serialization settings used to bind
+      handlers to message names.
+
+  - path: EventBus/Events/IntegrationEvent.cs
+    service: EventBus
+    language: csharp
+    role: base_event
+    relevant_to_scenarios: [2]
+    description: |
+      Base record for all integration events. Supplies event identity and
+      creation timestamp metadata.
+
+  - path: EventBus/Extensions/EventBusBuilderExtensions.cs
+    service: EventBus
+    language: csharp
+    role: subscription_registration
+    relevant_to_scenarios: [2]
+    description: |
+      Registers typed subscriptions and event-name mappings used by the message
+      broker implementation.
+
+  - path: EventBusRabbitMQ/RabbitMqDependencyInjectionExtensions.cs
+    service: EventBusRabbitMQ
+    language: csharp
+    role: broker_registration
+    relevant_to_scenarios: [2]
+    description: |
+      Dependency-injection registration for the RabbitMQ-backed EventBus,
+      including telemetry and hosted consumer startup.
+
+  - path: EventBusRabbitMQ/RabbitMQEventBus.cs
+    service: EventBusRabbitMQ
+    language: csharp
+    role: broker_adapter
+    relevant_to_scenarios: [2]
+    description: |
+      RabbitMQ implementation of IEventBus. Publishes events, binds queue
+      subscriptions, receives messages, and dispatches them to handlers.
+
+docs:
+  - path: docs/eshop-README.md
+    description: Original top-level README from dotnet/eShop
+    relevant_to_scenarios: [1, 2]
+
+  - path: docs/architecture.png
+    description: Original architecture diagram from dotnet/eShop
+    relevant_to_scenarios: [1, 2]

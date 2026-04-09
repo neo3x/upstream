@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-slate-800">Kanban Board</h2>
+    <a href="/docs" class="text-sm text-slate-500 hover:text-slate-700">API docs</a>
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+    {% for status, tickets in grouped.items() %}
+    <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-lg font-semibold mb-4 capitalize flex items-center gap-2">
+            {% if status.value == 'open' %}
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span>
+            {% elif status.value == 'in_progress' %}
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+            {% else %}
+            <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
+            {% endif %}
+            {{ status.value.replace('_', ' ') }}
+            <span class="text-sm font-normal text-slate-500">({{ tickets|length }})</span>
+        </h2>
+        <div class="space-y-3">
+            {% for t in tickets %}
+            <a href="/tickets/{{ t.id }}" class="block bg-slate-50 hover:bg-slate-100 p-3 rounded border border-slate-200 transition">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-mono text-slate-500">{{ t.id }}</span>
+                    <span class="text-xs px-2 py-0.5 rounded
+                        {% if t.severity.value == 'critical' %}bg-red-100 text-red-800
+                        {% elif t.severity.value == 'high' %}bg-orange-100 text-orange-800
+                        {% elif t.severity.value == 'medium' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-slate-200 text-slate-700{% endif %}">
+                        {{ t.severity.value }}
+                    </span>
+                </div>
+                <p class="font-medium text-sm">{{ t.title }}</p>
+                <p class="text-xs text-slate-500 mt-1">{{ t.assigned_team }}</p>
+            </a>
+            {% endfor %}
+            {% if not tickets %}
+            <p class="text-sm text-slate-400 italic text-center py-4">No tickets</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

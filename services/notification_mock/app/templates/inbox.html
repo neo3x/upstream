@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Inbox — Notification Center{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-slate-800">
+        Inbox
+        {% if total %}
+        <span class="text-base font-normal text-slate-500">({{ total }} notification{{ 's' if total != 1 }})</span>
+        {% endif %}
+    </h2>
+    <a href="/docs" class="text-sm text-slate-500 hover:text-slate-700">API docs</a>
+</div>
+
+<!-- Tab navigation -->
+<div class="flex gap-1 mb-6 bg-white rounded-lg shadow p-1 w-fit">
+    <button onclick="showTab('all')" id="tab-all"
+        class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition bg-slate-800 text-white">
+        All ({{ total }})
+    </button>
+    <button onclick="showTab('team_alert')" id="tab-team_alert"
+        class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+        Team Alerts ({{ grouped['team_alert']|length }})
+    </button>
+    <button onclick="showTab('reporter_update')" id="tab-reporter_update"
+        class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+        Reporter Updates ({{ grouped['reporter_update']|length }})
+    </button>
+    <button onclick="showTab('security_alert')" id="tab-security_alert"
+        class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+        Security Alerts ({{ grouped['security_alert']|length }})
+    </button>
+</div>
+
+<!-- All notifications panel -->
+<div id="panel-all" class="tab-panel space-y-3">
+    {% for n in notifications %}
+    {% include "partials/notification_card.html" %}
+    {% endfor %}
+    {% if not notifications %}
+    <div class="bg-white rounded-lg shadow p-8 text-center text-slate-400 italic">
+        No notifications yet.
+    </div>
+    {% endif %}
+</div>
+
+<!-- Per-type panels -->
+{% for type_key, type_label in [('team_alert', 'Team Alerts'), ('reporter_update', 'Reporter Updates'), ('security_alert', 'Security Alerts')] %}
+<div id="panel-{{ type_key }}" class="tab-panel hidden space-y-3">
+    {% for n in grouped[type_key] %}
+    {% include "partials/notification_card.html" %}
+    {% endfor %}
+    {% if not grouped[type_key] %}
+    <div class="bg-white rounded-lg shadow p-8 text-center text-slate-400 italic">
+        No {{ type_label | lower }} yet.
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
+
+<script>
+function showTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('bg-slate-800', 'text-white');
+        b.classList.add('text-slate-600', 'hover:bg-slate-100');
+    });
+    document.getElementById('panel-' + name).classList.remove('hidden');
+    const btn = document.getElementById('tab-' + name);
+    btn.classList.add('bg-slate-800', 'text-white');
+    btn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+}
+</script>
+{% endblock %}

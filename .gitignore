@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Project specific
+services/agent/data/checkpoints/*.sqlite
+services/agent/data/checkpoints/*.db
+services/jira_mock/data/*.json
+services/notification_mock/data/*.json
+indexer/data/qdrant_storage/
+*.log
+
+# Docker
+.docker/
+
+# Node (in case any UI work touches it)
+node_modules/

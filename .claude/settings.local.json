@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose:*)",
+      "Bash(curl -s http://localhost:6333/collections/eshop_code)",
+      "Bash(python3 -m json.tool)",
+      "Bash(docker run --rm --network upstream_default -e QDRANT_URL=http://qdrant:6333 upstream-indexer:latest python -c ':*)"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "provider": "ollama",
+  "status": "rejected",
+  "guardrails_reason": "Prompt injection detected. Reasons: In text: injection: ignore previous instructions; In log file: injection: ignore previous instructions; In log file: suspicious_log: SYSTEM OVERRIDE",
+  "errors": [
+    "guardrails: Prompt injection detected. Reasons: In text: injection: ignore previous instructions; In log file: injection: ignore previous instructions; In log file: suspicious_log: SYSTEM OVERRIDE"
+  ]
+}

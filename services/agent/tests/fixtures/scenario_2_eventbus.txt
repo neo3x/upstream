@@ -1,0 +1,2 @@
+Several customers paid 20 minutes ago but their orders still show as pending payment in their account.
+I checked Ordering logs and don't see any errors. What's going on?

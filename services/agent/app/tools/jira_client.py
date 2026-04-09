@@ -4,8 +4,10 @@ from ..config import settings
 
 
 def create_ticket(payload: dict) -> dict:
+    incident_id = payload.get("incident_id")
+    headers = {"X-Incident-Id": incident_id} if incident_id else None
     with httpx.Client(timeout=10.0) as client:
-        r = client.post(f"{settings.jira_mock_url}/api/tickets", json=payload)
+        r = client.post(f"{settings.jira_mock_url}/api/tickets", json=payload, headers=headers)
         r.raise_for_status()
         return r.json()
 

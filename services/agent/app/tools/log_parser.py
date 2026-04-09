@@ -52,4 +52,7 @@ def summarize_log(entries: list[ParsedLogEntry]) -> str:
     )
     for e in error_lines[:10]:
         summary += f"  [{e.timestamp}] {e.message}\n"
+    summary += "\nFirst warning lines (up to 10):\n"
+    for e in warn_lines[:10]:
+        summary += f"  [{e.timestamp}] {e.message}\n"
     return summary

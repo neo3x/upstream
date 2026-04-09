@@ -1,11 +1,10 @@
 """OpenAI provider."""
 import json
-from typing import Optional, Type
 
 from openai import OpenAI
-from pydantic import BaseModel
 
 from ..config import settings
+from ..observability.langfuse_setup import start_observation
 from .base import LLMProvider
 
 
@@ -92,17 +91,43 @@ class OpenAIProvider(LLMProvider):
                 "type": "image_url",
                 "image_url": {"url": f"data:image/png;base64,{image_b64}"},
             })
-        resp = self.client.chat.completions.create(
+        with start_observation(
+            name="openai.complete_structured",
+            as_type="generation",
             model=self.model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": user_content},
-            ],
-        )
-        return schema.model_validate_json(
-            _extract_json_payload(resp.choices[0].message.content or "")
-        )
+            input={"system": system[:500], "user": user[:1000]},
+            metadata={"schema": schema.__name__},
+            model_parameters={
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+            },
+        ) as generation:
+            resp = self.client.chat.completions.create(
+                model=self.model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user_content},
+                ],
+            )
+            cleaned = _extract_json_payload(resp.choices[0].message.content or "")
+            try:
+                result = schema.model_validate_json(cleaned)
+            except Exception as exc:
+                if generation is not None:
+                    generation.update(level="ERROR", status_message=str(exc), output={"raw": cleaned[:500]})
+                raise
 
+            usage = resp.usage
+            if generation is not None:
+                generation.update(
+                    output={"parsed": True, "schema": schema.__name__},
+                    usage_details={
+                        "prompt_tokens": getattr(usage, "prompt_tokens", 0) or 0,
+                        "completion_tokens": getattr(usage, "completion_tokens", 0) or 0,
+                        "total_tokens": getattr(usage, "total_tokens", 0) or 0,
+                    },
+                )
+            return result

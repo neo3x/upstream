@@ -1,0 +1,21 @@
+2025-04-08T10:14:32.123 INFO  Ordering.API Starting order processing for OrderId=12453
+2025-04-08T10:14:32.135 INFO  Ordering.API Validating user token via Identity.API
+2025-04-08T10:14:32.198 WARN  Ordering.API Identity.API/connect/userinfo returned 401 Unauthorized
+2025-04-08T10:14:32.199 ERROR Ordering.API Returning 500 to client (token validation failed)
+2025-04-08T10:14:35.012 INFO  Ordering.API Starting order processing for OrderId=12454
+2025-04-08T10:14:35.024 INFO  Ordering.API Validating user token via Identity.API
+2025-04-08T10:14:35.087 WARN  Ordering.API Identity.API/connect/userinfo returned 401 Unauthorized
+2025-04-08T10:14:35.088 ERROR Ordering.API Returning 500 to client (token validation failed)
+2025-04-08T10:14:38.221 INFO  Ordering.API Starting order processing for OrderId=12455
+2025-04-08T10:14:38.235 INFO  Ordering.API Validating user token via Identity.API
+2025-04-08T10:14:38.301 WARN  Ordering.API Identity.API/connect/userinfo returned 401 Unauthorized
+2025-04-08T10:14:38.302 ERROR Ordering.API Returning 500 to client (token validation failed)
+2025-04-08T10:14:41.443 INFO  Ordering.API Starting order processing for OrderId=12456
+2025-04-08T10:14:41.456 INFO  Ordering.API Validating user token via Identity.API
+2025-04-08T10:14:41.519 WARN  Ordering.API Identity.API/connect/userinfo returned 401 Unauthorized
+2025-04-08T10:14:41.520 ERROR Ordering.API Returning 500 to client (token validation failed)
+2025-04-08T10:14:44.668 INFO  Ordering.API Starting order processing for OrderId=12457
+2025-04-08T10:14:44.680 INFO  Ordering.API Validating user token via Identity.API
+2025-04-08T10:14:44.745 WARN  Ordering.API Identity.API/connect/userinfo returned 401 Unauthorized
+2025-04-08T10:14:44.746 ERROR Ordering.API Returning 500 to client (token validation failed)
+

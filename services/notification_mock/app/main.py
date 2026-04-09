@@ -3,9 +3,12 @@ Notification Mock — entry point.
 A mocked notification system for the Upstream SRE agent.
 """
 from fastapi import FastAPI
+from .logging_config import configure_logging
 from .api import router as api_router
 from .ui import router as ui_router
 
+
+configure_logging()
 
 app = FastAPI(
     title="Notification Mock",

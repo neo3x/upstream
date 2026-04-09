@@ -13,6 +13,7 @@ from ...guardrails.input_validator import (
     validate_log_upload,
     validate_text,
 )
+from ...observability.langfuse_setup import start_observation
 from ...observability.logging_config import get_logger
 from ...tools.jira_client import create_ticket
 from ...tools.notification_client import send_notification
@@ -25,46 +26,83 @@ def guardrails_node(state: IncidentState) -> dict:
     log_content = state.get("log_content", "")
     image_b64 = state.get("image_b64")
 
-    text_check = validate_text(text)
-    if not text_check.ok:
-        return _reject(state, f"Invalid text input: {text_check.reason}", severity="low")
+    with start_observation(
+        name="guardrails",
+        as_type="guardrail",
+        input={
+            "text_length": len(text),
+            "log_length": len(log_content),
+            "has_image": bool(image_b64),
+        },
+    ) as span:
+        text_check = validate_text(text)
+        if not text_check.ok:
+            result = _reject(state, f"Invalid text input: {text_check.reason}", severity="low")
+            if span is not None:
+                span.update(level="ERROR", status_message=text_check.reason, output=result)
+            return result
 
-    try:
-        log_bytes = _decode_base64_or_fallback(
-            encoded=state.get("log_bytes_b64"),
-            fallback_text=log_content,
-        )
-    except Exception:
-        return _reject(state, "Log file could not be decoded", severity="medium")
-
-    log_upload_check = validate_log_upload(log_bytes, state.get("log_content_type"))
-    if not log_upload_check.ok:
-        return _reject(state, f"Invalid log file: {log_upload_check.reason}", severity="low")
-
-    log_check = validate_log_content(log_content)
-    if not log_check.ok:
-        return _reject(state, f"Invalid log file: {log_check.reason}", severity="low")
-
-    if image_b64:
         try:
-            image_bytes = base64.b64decode(image_b64, validate=True)
-            image_check = validate_image_bytes(image_bytes, state.get("image_content_type"))
-            if not image_check.ok:
-                return _reject(state, f"Invalid image: {image_check.reason}", severity="low")
+            log_bytes = _decode_base64_or_fallback(
+                encoded=state.get("log_bytes_b64"),
+                fallback_text=log_content,
+            )
         except Exception:
-            return _reject(state, "Image could not be decoded", severity="medium")
+            result = _reject(state, "Log file could not be decoded", severity="medium")
+            if span is not None:
+                span.update(level="ERROR", status_message="log decode failed", output=result)
+            return result
 
-    detection = detect_injection(text, log_content)
-    if detection.is_malicious:
-        return _reject(
-            state,
-            "Prompt injection detected. Reasons: " + "; ".join(detection.reasons[:3]),
-            severity=detection.severity,
-            create_security_ticket=True,
-        )
+        log_upload_check = validate_log_upload(log_bytes, state.get("log_content_type"))
+        if not log_upload_check.ok:
+            result = _reject(state, f"Invalid log file: {log_upload_check.reason}", severity="low")
+            if span is not None:
+                span.update(level="ERROR", status_message=log_upload_check.reason, output=result)
+            return result
 
-    log.info("guardrails.passed")
-    return {"guardrails_passed": True}
+        log_check = validate_log_content(log_content)
+        if not log_check.ok:
+            result = _reject(state, f"Invalid log file: {log_check.reason}", severity="low")
+            if span is not None:
+                span.update(level="ERROR", status_message=log_check.reason, output=result)
+            return result
+
+        if image_b64:
+            try:
+                image_bytes = base64.b64decode(image_b64, validate=True)
+                image_check = validate_image_bytes(image_bytes, state.get("image_content_type"))
+                if not image_check.ok:
+                    result = _reject(state, f"Invalid image: {image_check.reason}", severity="low")
+                    if span is not None:
+                        span.update(level="ERROR", status_message=image_check.reason, output=result)
+                    return result
+            except Exception:
+                result = _reject(state, "Image could not be decoded", severity="medium")
+                if span is not None:
+                    span.update(level="ERROR", status_message="image decode failed", output=result)
+                return result
+
+        detection = detect_injection(text, log_content)
+        if detection.is_malicious:
+            result = _reject(
+                state,
+                "Prompt injection detected. Reasons: " + "; ".join(detection.reasons[:3]),
+                severity=detection.severity,
+                create_security_ticket=True,
+            )
+            if span is not None:
+                span.update(
+                    level="ERROR",
+                    status_message="prompt injection detected",
+                    output={"severity": detection.severity, "reasons": detection.reasons[:3]},
+                )
+            return result
+
+        result = {"guardrails_passed": True}
+        if span is not None:
+            span.update(output=result)
+        log.info("guardrails.passed")
+        return result
 
 
 def _decode_base64_or_fallback(encoded: str | None, fallback_text: str) -> bytes:

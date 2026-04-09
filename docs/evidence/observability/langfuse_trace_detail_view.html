@@ -1,0 +1,180 @@
+
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Langfuse Trace Detail Evidence</title><style>
+  :root {
+    --bg: #081125;
+    --panel: #101c34;
+    --panel-soft: #152440;
+    --text: #eef4ff;
+    --muted: #9db0d1;
+    --accent: #57c6ff;
+    --accent-2: #88f3c7;
+    --warn: #ffd479;
+    --danger: #ff8e8e;
+    --border: rgba(255,255,255,0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at top left, rgba(87,198,255,0.18), transparent 30%),
+      radial-gradient(circle at bottom right, rgba(136,243,199,0.16), transparent 28%),
+      linear-gradient(160deg, #06101f 0%, #0a1730 48%, #132548 100%);
+    min-height: 100vh;
+  }
+  main { width: 1400px; margin: 0 auto; padding: 48px; }
+  h1, h2, h3, p { margin: 0; }
+  .eyebrow { color: var(--accent); letter-spacing: 0.18em; font-size: 12px; text-transform: uppercase; }
+  .hero { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 28px; }
+  .hero h1 { font-size: 46px; line-height: 1.05; max-width: 820px; }
+  .hero p { color: var(--muted); max-width: 540px; font-size: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 24px 0 32px; }
+  .card, .panel {
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(18px);
+  }
+  .card { padding: 20px; }
+  .card .label { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .card .value { margin-top: 10px; font-size: 34px; font-weight: 700; }
+  .card .sub { margin-top: 8px; color: var(--muted); font-size: 14px; }
+  .stack { display: grid; gap: 16px; }
+  .panel { padding: 22px; }
+  .panel h2 { font-size: 26px; margin-bottom: 14px; }
+  .table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .table th, .table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+  .table th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.09em; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .span { background: rgba(87,198,255,0.18); color: var(--accent); }
+  .generation { background: rgba(136,243,199,0.16); color: var(--accent-2); }
+  .tool { background: rgba(255,212,121,0.14); color: var(--warn); }
+  .code {
+    font-family: Consolas, monospace;
+    white-space: pre-wrap;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #dfe9ff;
+    background: rgba(6,10,18,0.58);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px;
+  }
+  .two-col { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 18px; }
+  .timeline { display: grid; gap: 12px; }
+  .event { padding: 14px 16px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+  .event .title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 17px; }
+  .event .meta { color: var(--muted); font-size: 13px; }
+  .meter { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; margin-top: 10px; }
+  .meter > span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+</style></head>
+<body>
+  <main>
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Langfuse Trace Detail</div>
+        <h1>ticket_resolved_webhook · INC-EAC9690CB8</h1>
+      </div>
+      <p>Expanded trace view showing guardrails, extraction, causal analysis, severity, ticket creation, notification, and resolution.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="label">User</div><div class="value" style="font-size:28px;">alice@example.com</div><div class="sub">reporter email bound to trace</div></div>
+      <div class="card"><div class="label">Session</div><div class="value" style="font-size:28px;">INC-EAC9690CB8</div><div class="sub">incident correlation id</div></div>
+      <div class="card"><div class="label">Observations</div><div class="value">9</div><div class="sub">spans + generations in one trace</div></div>
+      <div class="card"><div class="label">Latency</div><div class="value">64.801s</div><div class="sub">including resolved webhook update</div></div>
+    </div>
+    <section class="panel">
+      <h2>Observation Table</h2>
+      <table class="table">
+        <thead><tr><th>Type</th><th>Name</th><th>Latency</th><th>Prompt</th><th>Completion</th><th>Parent</th></tr></thead>
+        <tbody>
+    <tr>
+      <td><span class="badge span">SPAN</span></td>
+      <td><strong>notify_reporter</strong></td>
+      <td>0.010s</td>
+      <td>0</td>
+      <td>0</td>
+      <td>root</td>
+    </tr>
+  
+    <tr>
+      <td><span class="badge span">SPAN</span></td>
+      <td><strong>causal_analysis</strong></td>
+      <td>13.728s</td>
+      <td>0</td>
+      <td>0</td>
+      <td>root</td>
+    </tr>
+  
+    <tr>
+      <td><span class="badge generation">GENERATION</span></td>
+      <td><strong>ollama.complete_structured</strong></td>
+      <td>4.609s</td>
+      <td>2874</td>
+      <td>290</td>
+      <td>48f823da-902c-45c8-a964-ad0f68499a66</td>
+    </tr>
+  
+    <tr>
+      <td><span class="badge span">SPAN</span></td>
+      <td><strong>ticket_creation</strong></td>
+      <td>0.010s</td>
+      <td>0</td>
+      <td>0</td>
+      <td>root</td>
+    </tr>
+  
+    <tr>
+      <td><span class="badge span">SPAN</span></td>
+      <td><strong>notification</strong></td>
+      <td>0.010s</td>
+      <td>0</td>
+      <td>0</td>
+      <td>root</td>
+    </tr>
+  
+    <tr>
+      <td><span class="badge span">SPAN</span></td>
+      <td><strong>severity</strong></td>
+      <td>0.001s</td>
+      <td>0</td>
+      <td>0</td>
+      <td>root</td>
+    </tr>
+  
+    <tr>
+      <td><span class="badge generation">GENERATION</span></td>
+      <td><strong>ollama.complete_structured</strong></td>
+      <td>4.452s</td>
+      <td>2206</td>
+      <td>135</td>
+      <td>52189024-e9e1-4ec7-94ac-028342689f6c</td>
+    </tr>
+  
+    <tr>
+      <td><span class="badge span">SPAN</span></td>
+      <td><strong>extraction</strong></td>
+      <td>4.638s</td>
+      <td>0</td>
+      <td>0</td>
+      <td>root</td>
+    </tr>
+  
+    <tr>
+      <td><span class="badge span">SPAN</span></td>
+      <td><strong>guardrails</strong></td>
+      <td>0.001s</td>
+      <td>0</td>
+      <td>0</td>
+      <td>root</td>
+    </tr>
+  </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

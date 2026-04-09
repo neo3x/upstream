@@ -34,8 +34,9 @@ services/agent/data/checkpoints/*.db
 services/jira_mock/data/*.json
 services/notification_mock/data/*.json
 indexer/data/qdrant_storage/
+.codex_tmp/
 *.log
-!services/agent/tests/fixtures/scenario_3_injection.log
+!services/agent/tests/fixtures/*.log
 
 # Docker
 .docker/

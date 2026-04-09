@@ -2,12 +2,14 @@
 from langgraph.graph import StateGraph, END, START
 from typing import TypedDict, Optional
 from ..tools.notification_client import send_notification
+from ..observability.langfuse_setup import start_observation
 from ..observability.logging_config import get_logger
 
 log = get_logger(__name__)
 
 
 class ResolutionState(TypedDict, total=False):
+    incident_id: str
     ticket_id: str
     reporter_email: str
     reporter_name: str
@@ -17,19 +19,28 @@ class ResolutionState(TypedDict, total=False):
 
 
 def notify_reporter_node(state: ResolutionState) -> dict:
-    notif = send_notification({
-        "type": "reporter_update",
-        "channel": "email",
-        "recipient": state["reporter_email"],
-        "subject": f"Resolved: {state['ticket_id']}",
-        "body": f"Hi {state.get('reporter_name', 'there')},\n\n"
-                f"Your incident report has been resolved.\n"
-                f"Root cause was identified in {state.get('suspected_service', 'unknown')}.\n"
-                f"Resolution note: {state.get('resolution_note') or 'no additional notes'}\n",
-        "related_ticket_id": state["ticket_id"],
-    })
-    log.info("resolution.notified", notification_id=notif["id"])
-    return {"notification_id": notif["id"]}
+    with start_observation(
+        name="notify_reporter",
+        as_type="tool",
+        input={"ticket_id": state.get("ticket_id")},
+        metadata={"suspected_service": state.get("suspected_service", "unknown")},
+    ) as span:
+        notif = send_notification({
+            "type": "reporter_update",
+            "channel": "email",
+            "recipient": state["reporter_email"],
+            "subject": f"Resolved: {state['ticket_id']}",
+            "body": f"Hi {state.get('reporter_name', 'there')},\n\n"
+                    f"Your incident report has been resolved.\n"
+                    f"Root cause was identified in {state.get('suspected_service', 'unknown')}.\n"
+                    f"Resolution note: {state.get('resolution_note') or 'no additional notes'}\n",
+            "related_ticket_id": state["ticket_id"],
+            "related_incident_id": state.get("incident_id"),
+        })
+        if span is not None:
+            span.update(output={"notification_id": notif["id"]})
+        log.info("resolution.notified", notification_id=notif["id"])
+        return {"notification_id": notif["id"]}
 
 
 def build_resolution_graph():

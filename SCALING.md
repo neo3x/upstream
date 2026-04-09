@@ -191,6 +191,10 @@ demo. Its official self-hosting documentation recommends Docker or VM-based
 deployments for lower scale and Kubernetes / AWS / Azure / GCP / Railway for
 production-scale or high-availability deployments.
 
+The seeded Langfuse credentials and project keys that ship with the demo stack
+exist only to reduce evaluator setup friction. They are intentionally
+insecure and must be replaced before any shared or production-like deployment.
+
 The same documentation notes that self-hosted Langfuse uses the same core
 infrastructure model as Langfuse Cloud, including separate web and worker
 containers plus Postgres, ClickHouse, Redis or Valkey, and S3 / Blob storage.

@@ -1,0 +1,66 @@
+[
+  {
+    "timestamp": "2026-04-09T19:21:21.459709Z",
+    "incident_id": "INC-EAC9690CB8",
+    "event": "incident.submitted",
+    "reporter": "alice@example.com",
+    "provider": "ollama",
+    "log_size_bytes": 1806,
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-04-09T19:21:21.472420Z",
+    "incident_id": "INC-EAC9690CB8",
+    "event": "guardrails.passed",
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-04-09T19:21:26.111184Z",
+    "incident_id": "INC-EAC9690CB8",
+    "event": "extraction.success",
+    "services": ["Ordering.API", "Identity.API"],
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-04-09T19:21:39.840532Z",
+    "incident_id": "INC-EAC9690CB8",
+    "event": "causal.hypothesis",
+    "agrees": false,
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-04-09T19:21:39.853047Z",
+    "incident_id": "INC-EAC9690CB8",
+    "event": "ticket.created",
+    "ticket_id": "UPSTREAM-970E5179",
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-04-09T19:21:39.864670Z",
+    "incident_id": "INC-EAC9690CB8",
+    "event": "notification.sent",
+    "notification_id": "NOTIF-2235C694",
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-04-09T19:21:39.870135Z",
+    "incident_id": "INC-EAC9690CB8",
+    "event": "incident.trace_ready",
+    "trace_url": "http://host.docker.internal:3001/project/upstream-project/traces/INC-EAC9690CB8",
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-04-09T19:22:26.261526Z",
+    "incident_id": "INC-EAC9690CB8",
+    "event": "webhook.ticket_resolved",
+    "ticket_id": "UPSTREAM-970E5179",
+    "level": "info"
+  },
+  {
+    "timestamp": "2026-04-09T19:22:26.272000Z",
+    "incident_id": "INC-EAC9690CB8",
+    "event": "resolution.notified",
+    "notification_id": "NOTIF-3F69FE07",
+    "level": "info"
+  }
+]

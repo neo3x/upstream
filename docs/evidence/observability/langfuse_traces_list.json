@@ -1,0 +1,111 @@
+{
+  "data": [
+    {
+      "id": "INC-EAC9690CB8",
+      "projectId": "upstream-project",
+      "name": "ticket_resolved_webhook",
+      "timestamp": "2026-04-09T19:21:21.461Z",
+      "environment": "default",
+      "tags": [],
+      "bookmarked": false,
+      "release": null,
+      "version": null,
+      "userId": "alice@example.com",
+      "sessionId": "INC-EAC9690CB8",
+      "public": false,
+      "input": {
+        "ticket_id": "UPSTREAM-970E5179",
+        "resolution_note": "Identity token validation configuration was restored."
+      },
+      "output": {
+        "status": "notified",
+        "notification_id": "NOTIF-3F69FE07"
+      },
+      "metadata": {
+        "provider": "ollama",
+        "has_screenshot": "False",
+        "suspected_service": "Identity.API"
+      },
+      "createdAt": "2026-04-09T19:21:21.976Z",
+      "updatedAt": "2026-04-09T19:22:31.739Z",
+      "observations": [
+        "6c84b776-9091-4555-8500-18030be567f4",
+        "88ba1c1b-96f7-4b89-9f53-2f2562effed1",
+        "52189024-e9e1-4ec7-94ac-028342689f6c",
+        "3e3b868f-426b-478c-8ca7-1866e54b6c30",
+        "3ef7282e-53c1-4488-866e-7d8516742df3",
+        "bae35ef1-7552-4907-a81e-5bfdd54af9d9",
+        "6fbcc5ea-2378-40ca-934d-69ac969a64b9",
+        "2a9276c3-886a-478f-98f1-e8ecc78c9d08",
+        "48f823da-902c-45c8-a964-ad0f68499a66"
+      ],
+      "scores": [],
+      "totalCost": 0,
+      "latency": 64.801,
+      "htmlPath": "/project/upstream-project/traces/INC-EAC9690CB8",
+      "externalId": null
+    },
+    {
+      "id": "sigtest",
+      "projectId": "upstream-project",
+      "name": "sigtest",
+      "timestamp": "2026-04-09T19:00:42.347Z",
+      "environment": "default",
+      "tags": [],
+      "bookmarked": false,
+      "release": null,
+      "version": null,
+      "userId": null,
+      "sessionId": null,
+      "public": false,
+      "input": null,
+      "output": null,
+      "metadata": {},
+      "createdAt": "2026-04-09T19:00:42.870Z",
+      "updatedAt": "2026-04-09T19:00:48.002Z",
+      "observations": [
+        "5f5a84b3-3485-43c6-a32a-929eee2a2759",
+        "588340e6-0c15-4930-8d88-a7b974d1fec5"
+      ],
+      "scores": [],
+      "totalCost": 0,
+      "latency": 0,
+      "htmlPath": "/project/upstream-project/traces/sigtest",
+      "externalId": null
+    },
+    {
+      "id": "test-trace",
+      "projectId": "upstream-project",
+      "name": "test",
+      "timestamp": "2026-04-09T18:57:23.604Z",
+      "environment": "default",
+      "tags": [],
+      "bookmarked": false,
+      "release": null,
+      "version": null,
+      "userId": null,
+      "sessionId": null,
+      "public": false,
+      "input": null,
+      "output": null,
+      "metadata": {},
+      "createdAt": "2026-04-09T18:57:24.162Z",
+      "updatedAt": "2026-04-09T18:57:29.322Z",
+      "observations": [
+        "93195b87-6461-4aa7-bee9-56b280bdccb7",
+        "610a9aed-97fa-4260-9abb-b93413086bb1"
+      ],
+      "scores": [],
+      "totalCost": 0,
+      "latency": 0,
+      "htmlPath": "/project/upstream-project/traces/test-trace",
+      "externalId": null
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "totalItems": 3,
+    "totalPages": 1
+  }
+}

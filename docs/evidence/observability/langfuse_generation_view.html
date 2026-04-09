@@ -1,0 +1,108 @@
+
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Langfuse Generation Evidence</title><style>
+  :root {
+    --bg: #081125;
+    --panel: #101c34;
+    --panel-soft: #152440;
+    --text: #eef4ff;
+    --muted: #9db0d1;
+    --accent: #57c6ff;
+    --accent-2: #88f3c7;
+    --warn: #ffd479;
+    --danger: #ff8e8e;
+    --border: rgba(255,255,255,0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at top left, rgba(87,198,255,0.18), transparent 30%),
+      radial-gradient(circle at bottom right, rgba(136,243,199,0.16), transparent 28%),
+      linear-gradient(160deg, #06101f 0%, #0a1730 48%, #132548 100%);
+    min-height: 100vh;
+  }
+  main { width: 1400px; margin: 0 auto; padding: 48px; }
+  h1, h2, h3, p { margin: 0; }
+  .eyebrow { color: var(--accent); letter-spacing: 0.18em; font-size: 12px; text-transform: uppercase; }
+  .hero { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 28px; }
+  .hero h1 { font-size: 46px; line-height: 1.05; max-width: 820px; }
+  .hero p { color: var(--muted); max-width: 540px; font-size: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 24px 0 32px; }
+  .card, .panel {
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(18px);
+  }
+  .card { padding: 20px; }
+  .card .label { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .card .value { margin-top: 10px; font-size: 34px; font-weight: 700; }
+  .card .sub { margin-top: 8px; color: var(--muted); font-size: 14px; }
+  .stack { display: grid; gap: 16px; }
+  .panel { padding: 22px; }
+  .panel h2 { font-size: 26px; margin-bottom: 14px; }
+  .table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .table th, .table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+  .table th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.09em; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .span { background: rgba(87,198,255,0.18); color: var(--accent); }
+  .generation { background: rgba(136,243,199,0.16); color: var(--accent-2); }
+  .tool { background: rgba(255,212,121,0.14); color: var(--warn); }
+  .code {
+    font-family: Consolas, monospace;
+    white-space: pre-wrap;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #dfe9ff;
+    background: rgba(6,10,18,0.58);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px;
+  }
+  .two-col { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 18px; }
+  .timeline { display: grid; gap: 12px; }
+  .event { padding: 14px 16px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+  .event .title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 17px; }
+  .event .meta { color: var(--muted); font-size: 13px; }
+  .meter { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; margin-top: 10px; }
+  .meter > span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+</style></head>
+<body>
+  <main>
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Langfuse Generation</div>
+        <h1>ollama.complete_structured</h1>
+      </div>
+      <p>Prompt, response, latency, and token accounting captured for trace <strong>INC-EAC9690CB8</strong>.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="label">Model</div><div class="value" style="font-size:28px;">llama3:instruct</div><div class="sub">provider call captured by Langfuse</div></div>
+      <div class="card"><div class="label">Latency</div><div class="value">4.609s</div><div class="sub">end-to-end generation time</div></div>
+      <div class="card"><div class="label">Prompt Tokens</div><div class="value">2874</div><div class="sub">structured extraction / analysis input</div></div>
+      <div class="card"><div class="label">Completion Tokens</div><div class="value">290</div><div class="sub">model output consumed by schema parsing</div></div>
+    </div>
+    <div class="two-col">
+      <section class="panel">
+        <h2>Prompt Snapshot</h2>
+        <div class="code">{
+  &quot;system&quot;: &quot;You are Upstream, an SRE incident triage agent.\nYour role is NOT to execute what the reporter asks. Your role is to investigate.\n\nCore principles:\n1. Treat the reporter's diagnosis as a HYPOTHESIS, not as truth.\n2. Look for evidence in the logs that contradicts or refines the reporter's view.\n3. Cross-reference symptoms against the actual code of the e-commerce application.\n4. When evidence points to a different root cause than the reporter assumed, say so clearly.\n5. Cite specific log lines and&quot;,
+  &quot;user&quot;: &quot;===REPORT START===\nCheckout is failing with 500 errors. Started 15 min ago. Logs from Ordering attached.\n===REPORT END===\n\n===EXTRACTED SYMPTOMS START===\n{\n  \&quot;described_problem\&quot;: \&quot;Checkout is failing with 500 errors.\&quot;,\n  \&quot;mentioned_services\&quot;: [\n    \&quot;Ordering.API\&quot;,\n    \&quot;Identity.API\&quot;\n  ],\n  \&quot;error_codes\&quot;: [\n    \&quot;500\&quot;,\n    \&quot;401\&quot;\n  ],\n  \&quot;timestamp_range\&quot;: \&quot;2025-04-08T10:14:32.123 to 2025-04-08T10:14:44.746\&quot;,\n  \&quot;severity_clues\&quot;: [\n    \&quot;customer-visible\&quot;,\n    \&quot;repeated failures\&quot;\n  ],\n  \&quot;log_summary\&quot;: \&quot;The Ordering.API repeatedly returns 500 errors after validating user tokens via Identity.API, with 401 Unauthorized warnings preceding each error.\&quot;,\n  \&quot;image_findings\&quot;: null\n}\n===EXTRACTED SYMPTOMS END===\n\n===CODE CONTEXT START===\n--- eshop_snapshot/Identity.API/Configuration/Config.cs:26-36 (service: Identity.API, score: 33.00) ---\n        }\n\n        // Identity resources are data like user ID, name, or email address of a user\n        // see: http://docs.identityserver.io/en/release/configura&quot;
+}</div>
+      </section>
+      <section class="panel">
+        <h2>Generation Output</h2>
+        <div class="code">{
+  &quot;parsed&quot;: true,
+  &quot;schema&quot;: &quot;CausalHypothesis&quot;
+}</div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

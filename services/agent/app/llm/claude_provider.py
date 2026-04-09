@@ -1,11 +1,10 @@
 """Anthropic Claude provider."""
 import json
-from typing import Optional, Type
 
 from anthropic import Anthropic
-from pydantic import BaseModel
 
 from ..config import settings
+from ..observability.langfuse_setup import start_observation
 from .base import LLMProvider
 
 
@@ -91,12 +90,52 @@ class ClaudeProvider(LLMProvider):
             f"```json\n{json.dumps(schema_json, indent=2)}\n```\n"
             "Return ONLY the JSON object. No prose before or after."
         )
-        text = self.complete_multimodal(
-            system=system + instruction,
-            user_text=user,
-            image_b64=image_b64,
-            max_tokens=max_tokens,
-            temperature=temperature,
-        )
-        return schema.model_validate_json(_extract_json_payload(text))
+        content = [{"type": "text", "text": user}]
+        if image_b64:
+            content.insert(0, {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": image_b64,
+                },
+            })
 
+        with start_observation(
+            name="claude.complete_structured",
+            as_type="generation",
+            model=self.model,
+            input={"system": system[:500], "user": user[:1000]},
+            metadata={"schema": schema.__name__},
+            model_parameters={
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+            },
+        ) as generation:
+            resp = self.client.messages.create(
+                model=self.model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                system=system + instruction,
+                messages=[{"role": "user", "content": content}],
+            )
+            text = "".join(
+                block.text for block in resp.content if getattr(block, "type", "") == "text"
+            ).strip()
+            cleaned = _extract_json_payload(text)
+            try:
+                result = schema.model_validate_json(cleaned)
+            except Exception as exc:
+                if generation is not None:
+                    generation.update(level="ERROR", status_message=str(exc), output={"raw": cleaned[:500]})
+                raise
+
+            if generation is not None:
+                generation.update(
+                    output={"parsed": True, "schema": schema.__name__},
+                    usage_details={
+                        "prompt_tokens": getattr(resp.usage, "input_tokens", 0) or 0,
+                        "completion_tokens": getattr(resp.usage, "output_tokens", 0) or 0,
+                    },
+                )
+            return result

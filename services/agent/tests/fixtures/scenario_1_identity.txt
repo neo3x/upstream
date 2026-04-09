@@ -1,0 +1,4 @@
+Checkout is failing. Users get HTTP 500 when trying to pay.
+It started about 15 minutes ago. I'm attaching the Ordering logs
+because I think the problem is there.
+

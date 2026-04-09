@@ -1,0 +1,62 @@
+{
+  "provider": "ollama",
+  "status": "processed",
+  "extracted": {
+    "described_problem": "Users get HTTP 500 when trying to pay.",
+    "mentioned_services": [
+      "Ordering.API",
+      "Identity.API"
+    ],
+    "error_codes": [
+      "500",
+      "401"
+    ],
+    "timestamp_range": "2025-04-08T10:14:32.123 - 2025-04-08T10:14:44.746",
+    "severity_clues": [
+      "repeated failures",
+      "customer-visible"
+    ],
+    "log_summary": "Repeated warnings of 401 Unauthorized from Identity.API, followed by errors with code 500 in Ordering.API. The sequence is consistent across multiple order processing attempts.",
+    "image_findings": null
+  },
+  "hypothesis": {
+    "reporter_diagnosis": "Users get HTTP 500 when trying to pay.",
+    "agent_diagnosis": "The root cause is likely in Identity.API due to repeated warnings of 401 Unauthorized, which cascades into errors with code 500 in Ordering.API.",
+    "agrees_with_reporter": false,
+    "suspected_root_service": "Identity.API",
+    "blast_radius": [
+      "Ordering.API"
+    ],
+    "reasoning": "The extracted symptoms show a consistent sequence of repeated warnings of 401 Unauthorized from Identity.API, followed by errors with code 500 in Ordering.API. This suggests that the root cause is in Identity.API, which is causing the downstream failures in Ordering.API.",
+    "code_references": [
+      {
+        "file_path": "eshop_snapshot/Ordering.API/Apis/OrdersApi.cs",
+        "start_line": 11,
+        "end_line": 21,
+        "excerpt": "        api.MapPut(\"/cancel\", CancelOrderAsync);\n        api.MapPut(\"/ship\", ShipOrderAsync);\n        api.MapGet(\"{orderId:int}\", GetOrderAsync);\n        api.MapGet(\"/\", GetOrdersByUserAsync);\n        api.MapGet(\"/cardtypes\", GetCardTypesAsync);\n        api.MapPost(\"/draft\", CreateOrderDraftAsync);\n",
+        "relevance_score": 36.0
+      },
+      {
+        "file_path": "eshop_snapshot/Ordering.API/Application/IntegrationEvents/EventHandling/OrderPaymentSucceededIntegrationEventHandler.cs",
+        "start_line": 14,
+        "end_line": 23,
+        "excerpt": "        logger.LogInformation(\n            \"Sending command: {CommandName} - {IdProperty}: {CommandId} ({@Command})\",\n            command.GetGenericTypeName(),\n            nameof(command.OrderNumber),\n            command.OrderNumber,\n            command);\n\n        await mediator.Send(command);\n    }",
+        "relevance_score": 32.0
+      },
+      {
+        "file_path": "eshop_snapshot/Ordering.API/Extensions/Extensions.cs",
+        "start_line": 15,
+        "end_line": 25,
+        "excerpt": "        services.AddDbContext<OrderingContext>(options =>\n        {\n            options.UseNpgsql(builder.Configuration.GetConnectionString(\"orderingdb\"));\n        });\n        builder.EnrichNpgsqlDbContext<OrderingContext>();\n\n        services.AddMigration<OrderingContext, OrderingContextSeed>();\n\n ",
+        "relevance_score": 31.0
+      }
+    ],
+    "confidence": 0.8
+  },
+  "severity": {
+    "level": "high",
+    "rationale": "Blast radius of 1 services indicates high severity.",
+    "suggested_team": "identity-team"
+  },
+  "errors": []
+}

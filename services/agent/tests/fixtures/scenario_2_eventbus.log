@@ -1,0 +1,13 @@
+2025-04-08T10:30:01.121 INFO  Ordering.API Order 99821 marked as PaymentSucceeded
+2025-04-08T10:30:01.135 INFO  Ordering.API Publishing event OrderPaymentSucceededIntegrationEvent eventId=abc-001
+2025-04-08T10:30:01.142 INFO  Ordering.API Event published to RabbitMQ
+2025-04-08T10:30:04.512 INFO  Ordering.API Order 99822 marked as PaymentSucceeded
+2025-04-08T10:30:04.524 INFO  Ordering.API Publishing event OrderPaymentSucceededIntegrationEvent eventId=abc-002
+2025-04-08T10:30:04.531 INFO  Ordering.API Event published to RabbitMQ
+2025-04-08T10:30:07.892 INFO  Ordering.API Order 99823 marked as PaymentSucceeded
+2025-04-08T10:30:07.903 INFO  Ordering.API Publishing event OrderPaymentSucceededIntegrationEvent eventId=abc-003
+2025-04-08T10:30:07.910 INFO  Ordering.API Event published to RabbitMQ
+2025-04-08T10:30:11.234 INFO  Ordering.API Order 99824 marked as PaymentSucceeded
+2025-04-08T10:30:11.245 INFO  Ordering.API Publishing event OrderPaymentSucceededIntegrationEvent eventId=abc-004
+2025-04-08T10:30:11.252 INFO  Ordering.API Event published to RabbitMQ
+

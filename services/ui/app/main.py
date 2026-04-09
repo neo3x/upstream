@@ -9,15 +9,19 @@ from pathlib import Path
 from typing import Any, Optional
 import httpx
 import time
-import uuid
 
+from .correlation import bind_incident, new_incident_id
 from .config import settings
+from .logging_config import configure_logging, get_logger
 
+
+configure_logging()
 
 app = FastAPI(title="Upstream UI", version="0.1.0")
 APP_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(APP_DIR / "templates"))
 app.mount("/static", StaticFiles(directory=str(APP_DIR / "static")), name="static")
+log = get_logger(__name__)
 
 _jobs: dict[str, dict[str, Any]] = {}
 
@@ -89,6 +93,7 @@ async def _forward_submission(
     screenshot_content_type: str | None,
 ) -> None:
     job = _jobs[job_id]
+    bind_incident(job["incident_id"])
     job["status"] = "running"
 
     data = {
@@ -106,10 +111,12 @@ async def _forward_submission(
     try:
         timeout = httpx.Timeout(180.0, connect=10.0)
         async with httpx.AsyncClient(timeout=timeout) as client:
+            log.info("ui.forward_submission", provider=llm_provider, reporter=reporter_email)
             response = await client.post(
                 f"{settings.agent_url}/incidents",
                 data=data,
                 files=files,
+                headers={"X-Incident-Id": job["incident_id"]},
             )
             response.raise_for_status()
             payload = response.json()
@@ -117,11 +124,13 @@ async def _forward_submission(
         job["status"] = "failed"
         job["error"] = str(exc)
         job["finished_monotonic"] = time.monotonic()
+        log.error("ui.forward_failed", error=str(exc))
         return
 
     job["status"] = "completed"
     job["result"] = payload
     job["finished_monotonic"] = time.monotonic()
+    log.info("ui.forward_completed", status=payload.get("status"))
 
 
 @app.get("/health")
@@ -151,7 +160,9 @@ async def submit(
     log_file: UploadFile = File(...),
     screenshot: Optional[UploadFile] = File(None),
 ):
-    job_id = uuid.uuid4().hex[:12]
+    incident_id = new_incident_id()
+    bind_incident(incident_id)
+    job_id = incident_id.lower().replace("-", "")[:12]
     log_file_bytes = await log_file.read()
     screenshot_bytes = None
     screenshot_name = None
@@ -164,6 +175,7 @@ async def submit(
 
     _jobs[job_id] = {
         "id": job_id,
+        "incident_id": incident_id,
         "provider": llm_provider,
         "status": "queued",
         "result": None,
@@ -172,6 +184,7 @@ async def submit(
         "started_monotonic": time.monotonic(),
         "finished_monotonic": None,
     }
+    log.info("ui.submission_received", reporter=reporter_email, provider=llm_provider)
 
     background_tasks.add_task(
         _forward_submission,

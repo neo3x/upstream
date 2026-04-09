@@ -2,18 +2,23 @@
 REST API for the Notification mock.
 The Upstream agent calls these endpoints to send notifications.
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
+from .correlation import bind_incident
+from .logging_config import get_logger
 from .models import Notification, NotificationCreate
 from . import storage
 
 
 router = APIRouter(prefix="/api", tags=["api"])
+log = get_logger(__name__)
 
 
 @router.post("/notifications", response_model=Notification, status_code=201)
-def send_notification(req: NotificationCreate):
+def send_notification(req: NotificationCreate, request: Request):
+    bind_incident(request.headers.get("X-Incident-Id") or req.related_incident_id)
     n = Notification(**req.model_dump())
+    log.info("notification.created", notification_id=n.id, notification_type=n.type.value)
     return storage.save_notification(n)
 
 

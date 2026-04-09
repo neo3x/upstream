@@ -1,6 +1,7 @@
 from ..state import IncidentState, TicketCreationResult
 from ...tools.jira_client import create_ticket
 from ...config import settings
+from ...observability.langfuse_setup import start_observation
 from ...observability.logging_config import get_logger
 
 log = get_logger(__name__)
@@ -25,9 +26,17 @@ def ticket_creation_node(state: IncidentState) -> dict:
         ],
         "incident_id": state["incident_id"],
     }
-    ticket = create_ticket(payload)
-    log.info("ticket.created", ticket_id=ticket["id"])
-    return {"ticket": TicketCreationResult(
-        ticket_id=ticket["id"],
-        ticket_url=f"{settings.jira_mock_url}/tickets/{ticket['id']}",
-    )}
+    with start_observation(
+        name="ticket_creation",
+        as_type="tool",
+        input={"assigned_team": sev.suggested_team, "severity": sev.level},
+    ) as span:
+        ticket = create_ticket(payload)
+        result = TicketCreationResult(
+            ticket_id=ticket["id"],
+            ticket_url=f"{settings.jira_mock_url}/tickets/{ticket['id']}",
+        )
+        if span is not None:
+            span.update(output=result.model_dump())
+        log.info("ticket.created", ticket_id=ticket["id"])
+        return {"ticket": result}

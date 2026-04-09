@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guardrails Rejection Response</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+      color: #0f172a;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+    }
+
+    .card {
+      width: min(960px, 100%);
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(248, 113, 113, 0.28);
+      border-radius: 28px;
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
+    }
+
+    .banner {
+      background: linear-gradient(90deg, #7f1d1d, #b91c1c);
+      color: white;
+      padding: 22px 28px;
+    }
+
+    .banner h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .banner p {
+      margin: 10px 0 0;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.84);
+    }
+
+    .body {
+      padding: 28px;
+    }
+
+    .meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    pre {
+      margin: 0;
+      padding: 24px;
+      overflow: auto;
+      border-radius: 22px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 15px;
+      line-height: 1.65;
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <section class="card">
+    <div class="banner">
+      <h1>Guardrails Rejection Response</h1>
+      <p>Scenario 3 was rejected before extraction or causal analysis ran.</p>
+    </div>
+    <div class="body">
+      <div class="meta">
+        <span class="chip">HTTP 200</span>
+        <span class="chip">Status: rejected</span>
+        <span class="chip">Incident: INC-0B90B0AB96</span>
+      </div>
+      <pre>{
+  "incident_id": "INC-0B90B0AB96",
+  "status": "rejected",
+  "reason": "Prompt injection detected. Reasons: In text: injection: ignore previous instructions; In log file: injection: ignore previous instructions; In log file: suspicious_log: SYSTEM OVERRIDE"
+}</pre>
+    </div>
+  </section>
+</body>
+</html>

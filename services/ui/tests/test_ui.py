@@ -19,6 +19,14 @@ def test_index_renders():
     assert "Reporter intake" in response.text
 
 
+def test_index_prefills_sample_scenario():
+    response = client.get("/?scenario=scenario1")
+    assert response.status_code == 200
+    assert "Scenario 1" in response.text
+    assert "scenario_1_identity.log" in response.text
+    assert "Alice SRE" in response.text
+
+
 def test_provider_info_ollama_is_prominent():
     response = client.get("/provider-info/ollama")
     assert response.status_code == 200
@@ -105,3 +113,10 @@ def test_rejected_result_card(monkeypatch):
     assert status_response.status_code == 200
     assert "Submission rejected before triage" in status_response.text
     assert "Prompt injection detected." in status_response.text
+
+
+def test_demo_preview_result_renders():
+    response = client.get("/demo-preview/result/disagreement")
+    assert response.status_code == 200
+    assert "Result card capture" in response.text
+    assert "Upstream disagrees with the initial diagnosis" in response.text

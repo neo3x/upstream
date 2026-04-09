@@ -55,7 +55,7 @@
         </div>
 
         {% if not result.agrees_with_reporter %}
-        <div class="mt-5 rounded-[1.35rem] border border-amber-200 bg-amber-50 p-4">
+        <div class="mt-5 rounded-[1.35rem] border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4 shadow-sm">
             <div class="flex items-start gap-3">
                 <div class="rounded-xl bg-amber-100 p-2 text-amber-900">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,7 +65,7 @@
                 <div>
                     <p class="text-sm font-bold text-amber-950">Upstream disagrees with the initial diagnosis.</p>
                     <p class="mt-1 text-sm leading-6 text-amber-900">
-                        The evidence suggests the root cause sits somewhere upstream of the service the reporter focused on.
+                        The evidence points to a different upstream service than the one the reporter focused on. This is the key handoff moment for the demo.
                     </p>
                 </div>
             </div>
@@ -104,6 +104,15 @@
             >
                 Open notifications
             </a>
+            {% if external_links.langfuse is defined %}
+            <a
+                href="{{ external_links.langfuse }}"
+                target="_blank"
+                class="inline-flex flex-1 items-center justify-center rounded-2xl border border-sky-200 bg-sky-50 px-5 py-3 text-sm font-bold text-sky-900 hover:bg-sky-100"
+            >
+                Open traces
+            </a>
+            {% endif %}
         </div>
     </section>
     {% endif %}

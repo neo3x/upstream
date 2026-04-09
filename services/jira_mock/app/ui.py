@@ -23,7 +23,10 @@ def board(request: Request):
         TicketStatus.IN_PROGRESS: [t for t in tickets if t.status == TicketStatus.IN_PROGRESS],
         TicketStatus.RESOLVED: [t for t in tickets if t.status == TicketStatus.RESOLVED],
     }
-    return templates.TemplateResponse("board.html", {"request": request, "grouped": grouped})
+    return templates.TemplateResponse(
+        "board.html",
+        {"request": request, "grouped": grouped, "TicketStatus": TicketStatus},
+    )
 
 
 @router.get("/tickets/{ticket_id}", response_class=HTMLResponse)

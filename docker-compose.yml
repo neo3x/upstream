@@ -1,9 +1,40 @@
 # Upstream Docker Compose
-# TODO: Phase 2 will define all services
 
 version: "3.9"
 
 services:
-  placeholder:
-    image: alpine:3.19
-    command: ["echo", "Upstream skeleton ready. Phase 2 will replace this."]
+  jira_mock:
+    build:
+      context: services/jira_mock
+    ports:
+      - "3100:3100"
+    volumes:
+      - jira_mock_data:/app/data
+    environment:
+      AGENT_WEBHOOK_URL: ${AGENT_WEBHOOK_URL:-http://upstream-agent:8000/webhooks/ticket-resolved}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+
+  notification_mock:
+    build:
+      context: services/notification_mock
+    ports:
+      - "3200:3200"
+    volumes:
+      - notification_mock_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3200/health"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  jira_mock_data:
+  notification_mock_data:

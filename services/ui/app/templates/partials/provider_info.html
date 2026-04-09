@@ -1,0 +1,69 @@
+{% if provider == "ollama" %}
+<div class="space-y-4">
+    <div class="rounded-[1.4rem] border border-amber-200 bg-amber-50 p-4">
+        <div class="flex items-start gap-3">
+            <div class="mt-0.5 rounded-xl bg-amber-200 p-2 text-amber-900">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v4m0 4h.01M10.29 3.86l-7.5 13A2 2 0 0 0 4.5 20h15a2 2 0 0 0 1.71-3.14l-7.5-13a2 2 0 0 0-3.42 0Z"/>
+                </svg>
+            </div>
+            <div class="space-y-2">
+                <p class="text-sm font-bold text-amber-950">Local privacy mode selected</p>
+                <p class="text-sm leading-6 text-amber-900">
+                    Ollama keeps incident data on your own infrastructure, which is valuable for regulated, private, or air-gapped environments.
+                </p>
+                <p class="text-sm leading-6 text-amber-900">
+                    Trade-off: local models usually reason less reliably than frontier cloud models. Expect weaker causal analysis on harder incidents.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="ollama-warning-modal" class="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/55 px-4">
+        <div class="w-full max-w-xl rounded-[2rem] border border-amber-200 bg-white p-6 shadow-glass">
+            <div class="flex items-start gap-4">
+                <div class="rounded-2xl bg-amber-100 p-3 text-amber-900">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v4m0 4h.01M10.29 3.86l-7.5 13A2 2 0 0 0 4.5 20h15a2 2 0 0 0 1.71-3.14l-7.5-13a2 2 0 0 0-3.42 0Z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="font-tech text-[11px] uppercase tracking-[0.24em] text-amber-700">Truth in capabilities</p>
+                    <h3 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-950">Ollama is private, but not the strongest reasoner.</h3>
+                    <div class="mt-4 space-y-3 text-sm leading-6 text-slate-700">
+                        <p>Use this option when data must stay inside your network.</p>
+                        <p>Upstream will still work, but borderline incidents may be less accurate than they are with Claude or OpenAI.</p>
+                        <p class="font-semibold text-amber-900">First-time use can also require downloading a multi-gigabyte model.</p>
+                    </div>
+                    <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+                        <button
+                            type="button"
+                            onclick="document.getElementById('ollama-warning-modal').remove()"
+                            class="inline-flex items-center justify-center rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
+                        >
+                            Continue with Ollama
+                        </button>
+                        <button
+                            type="button"
+                            onclick="const claude=document.querySelector('input[name=llm_provider][value=claude]'); if (claude) { claude.checked = true; claude.dispatchEvent(new Event('change', { bubbles: true })); }"
+                            class="inline-flex items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                        >
+                            Switch back to Claude
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% elif provider == "claude" %}
+<div class="rounded-[1.4rem] border border-emerald-200 bg-emerald-50 p-4">
+    <p class="text-sm font-semibold text-emerald-950">Claude Sonnet is the default production path.</p>
+    <p class="mt-1 text-sm leading-6 text-emerald-900">Best reasoning quality for multimodal incident triage. Requires <span class="font-tech">ANTHROPIC_API_KEY</span>.</p>
+</div>
+{% elif provider == "openai" %}
+<div class="rounded-[1.4rem] border border-sky-200 bg-sky-50 p-4">
+    <p class="text-sm font-semibold text-sky-950">OpenAI gives a cloud fallback with strong multimodal support.</p>
+    <p class="mt-1 text-sm leading-6 text-sky-900">Good fit when the team already runs OpenAI infrastructure. Requires <span class="font-tech">OPENAI_API_KEY</span>.</p>
+</div>
+{% endif %}

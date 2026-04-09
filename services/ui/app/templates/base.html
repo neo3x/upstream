@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Upstream | Incident Intake{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    boxShadow: {
+                        glass: "0 24px 80px rgba(15, 23, 42, 0.14)",
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --panel: rgba(255, 255, 255, 0.88);
+            --ink: #0f172a;
+            --muted: #475569;
+            --line: rgba(148, 163, 184, 0.26);
+            --brand: #0f62fe;
+            --brand-deep: #12339c;
+            --brand-soft: #dbeafe;
+            --warn: #f59e0b;
+            --warn-soft: #fef3c7;
+        }
+
+        body {
+            font-family: "Manrope", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(14, 116, 144, 0.12), transparent 28%),
+                radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 26%),
+                linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+        }
+
+        .font-tech { font-family: "JetBrains Mono", monospace; }
+        .panel {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--line);
+            box-shadow: 0 18px 60px rgba(15, 23, 42, 0.08);
+        }
+
+        .mesh::before,
+        .mesh::after {
+            content: "";
+            position: fixed;
+            inset: auto;
+            z-index: -1;
+            pointer-events: none;
+            border-radius: 9999px;
+            filter: blur(70px);
+            opacity: 0.42;
+        }
+
+        .mesh::before {
+            width: 18rem;
+            height: 18rem;
+            top: 5rem;
+            left: -4rem;
+            background: rgba(59, 130, 246, 0.18);
+        }
+
+        .mesh::after {
+            width: 20rem;
+            height: 20rem;
+            right: -5rem;
+            top: 14rem;
+            background: rgba(14, 165, 233, 0.16);
+        }
+
+        .htmx-indicator { display: none; }
+        .htmx-request .htmx-indicator { display: flex; }
+        .htmx-request.htmx-indicator { display: flex; }
+    </style>
+</head>
+<body class="mesh min-h-screen">
+    <header class="sticky top-0 z-20 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+            <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-blue-500/10">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 2 4 14h6l-1 8 11-14h-7l0-6Z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-tech text-[11px] uppercase tracking-[0.28em] text-sky-700">Upstream</p>
+                    <h1 class="text-lg font-extrabold tracking-tight text-slate-950">Incident Triage Workbench</h1>
+                </div>
+            </div>
+            <nav class="hidden items-center gap-2 md:flex">
+                <a href="{{ external_links.jira }}" target="_blank" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Tickets</a>
+                <a href="{{ external_links.notifications }}" target="_blank" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Notifications</a>
+                <a href="{{ external_links.langfuse }}" target="_blank" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Traces</a>
+            </nav>
+        </div>
+    </header>
+    <main class="mx-auto max-w-6xl px-6 py-10">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="px-6 pb-10 pt-4 text-center text-xs text-slate-500">
+        Upstream | Built for incident demos where evidence matters more than instinct.
+    </footer>
+</body>
+</html>

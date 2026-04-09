@@ -1,0 +1,59 @@
+<div
+    id="submission-status-card"
+    hx-get="/submission-status/{{ job_id }}"
+    hx-trigger="load delay:800ms, every 1200ms"
+    hx-swap="outerHTML"
+    class="panel rounded-[2rem] p-6 shadow-glass"
+>
+    <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+        <div>
+            <p class="font-tech text-[11px] uppercase tracking-[0.24em] text-slate-500">Live investigation</p>
+            <h3 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-950">Upstream is processing your incident</h3>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                Provider: <span class="font-semibold text-slate-900">{{ provider_label }}</span>. This panel updates automatically while the submission runs through the agent.
+            </p>
+        </div>
+        <div class="inline-flex items-center gap-3 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+            <span class="relative flex h-2.5 w-2.5">
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-300 opacity-70"></span>
+                <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-sky-300"></span>
+            </span>
+            Investigating
+        </div>
+    </div>
+
+    <div class="mt-6 grid gap-4">
+        {% for stage in stages %}
+        {% set idx = loop.index0 %}
+        {% set is_done = idx < stage_index %}
+        {% set is_current = idx == stage_index %}
+        <div class="rounded-[1.35rem] border px-4 py-4 transition
+            {% if is_current %}border-sky-300 bg-sky-50{% elif is_done %}border-emerald-200 bg-emerald-50{% else %}border-slate-200 bg-white{% endif %}">
+            <div class="flex items-start gap-4">
+                <div class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-2xl text-sm font-bold
+                    {% if is_current %}bg-sky-600 text-white{% elif is_done %}bg-emerald-600 text-white{% else %}bg-slate-200 text-slate-600{% endif %}">
+                    {% if is_done %}
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m5 13 4 4L19 7"/>
+                    </svg>
+                    {% elif is_current %}
+                    <span class="h-2.5 w-2.5 rounded-full bg-white"></span>
+                    {% else %}
+                    {{ loop.index }}
+                    {% endif %}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                        <p class="text-sm font-bold text-slate-900">{{ stage.title }}</p>
+                        <span class="font-tech text-[11px] uppercase tracking-[0.22em]
+                            {% if is_current %}text-sky-700{% elif is_done %}text-emerald-700{% else %}text-slate-400{% endif %}">
+                            {% if is_current %}In progress{% elif is_done %}Done{% else %}Queued{% endif %}
+                        </span>
+                    </div>
+                    <p class="mt-1 text-sm leading-6 text-slate-600">{{ stage.detail }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

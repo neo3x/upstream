@@ -3,6 +3,31 @@
 version: "3.9"
 
 services:
+  upstream_ui:
+    build:
+      context: services/ui
+    ports:
+      - "3000:3000"
+    environment:
+      AGENT_URL: ${UI_AGENT_URL:-http://host.docker.internal:8000}
+      JIRA_MOCK_URL_EXTERNAL: ${JIRA_MOCK_URL_EXTERNAL:-http://localhost:3100}
+      NOTIFICATION_MOCK_URL_EXTERNAL: ${NOTIFICATION_MOCK_URL_EXTERNAL:-http://localhost:3200}
+      LANGFUSE_URL_EXTERNAL: ${LANGFUSE_URL_EXTERNAL:-http://localhost:3001}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      jira_mock:
+        condition: service_healthy
+      notification_mock:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+
   jira_mock:
     build:
       context: services/jira_mock

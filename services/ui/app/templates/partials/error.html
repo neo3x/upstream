@@ -1,0 +1,17 @@
+<div id="submission-status-card" class="rounded-[2rem] border border-red-200 bg-red-50 p-6 shadow-glass">
+    <div class="flex items-start gap-4">
+        <div class="rounded-2xl bg-red-100 p-3 text-red-800">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v5m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 3c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3Z"/>
+            </svg>
+        </div>
+        <div class="space-y-3">
+            <div>
+                <p class="font-tech text-[11px] uppercase tracking-[0.24em] text-red-700">Submission error</p>
+                <h3 class="mt-2 text-2xl font-extrabold tracking-tight text-red-950">The UI could not complete the handoff</h3>
+            </div>
+            <p class="max-w-2xl text-sm leading-6 text-red-900">{{ error }}</p>
+            <p class="text-sm leading-6 text-red-800">Check that the agent service is reachable and that the multipart submission is accepted on the backend.</p>
+        </div>
+    </div>
+</div>

@@ -80,7 +80,10 @@ async def submit_incident(
         "ticket_id": final_state["ticket"].ticket_id,
         "ticket_url": final_state["ticket"].ticket_url,
         "agent_diagnosis": final_state["hypothesis"].agent_diagnosis,
+        "reasoning": final_state["hypothesis"].reasoning,
+        "suspected_service": final_state["hypothesis"].suspected_root_service,
         "agrees_with_reporter": final_state["hypothesis"].agrees_with_reporter,
+        "confidence": final_state["hypothesis"].confidence,
         "severity": final_state["severity"].level,
         "assigned_team": final_state["severity"].suggested_team,
     }

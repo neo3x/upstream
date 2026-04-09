@@ -64,6 +64,9 @@ Observed pattern:
 **Log file**
 `scenario_2_eventbus.log`
 
+**Screenshot**
+`scenario_2_account_screenshot.png`
+
 Observed pattern:
 - Ordering marks orders as `PaymentSucceeded`
 - Ordering logs repeated publication of `OrderPaymentSucceededIntegrationEvent`
@@ -127,6 +130,79 @@ Observed pattern:
 
 - Security alert severity should be `high`
 - Security review ticket should route to `security-team`
+
+## Demo Assets
+
+The demo runner uses these fixture files from `services/agent/tests/fixtures/`:
+
+- `scenario_1_identity.log`
+- `scenario_2_eventbus.log`
+- `scenario_2_account_screenshot.png`
+- `scenario_3_injection.log`
+
+The scenario 2 screenshot is generated from:
+
+- `scripts/generate_scenario_2_screenshot.ps1`
+- `services/agent/tests/fixtures/scenario_2_account_screenshot_source.html`
+
+If you need to regenerate the PNG on Windows, run:
+
+```powershell
+./scripts/generate_scenario_2_screenshot.ps1
+```
+
+## Demo Recipe
+
+Run these commands from the repository root:
+
+```bash
+scripts/reset_state.sh
+scripts/seed_demo_data.sh
+scripts/run_demo.sh
+```
+
+If Claude is not configured locally, you can switch the scripted run to Ollama:
+
+```bash
+export DEMO_LLM_PROVIDER=ollama
+scripts/run_demo.sh
+```
+
+On Windows, run the commands above from Git Bash.
+
+### What should happen
+
+After `scripts/reset_state.sh`:
+- Jira mock has `0` tickets
+- Notification mock has `0` notifications
+
+After `scripts/seed_demo_data.sh`:
+- Jira mock has exactly `3` historical tickets
+- ticket statuses are `resolved`, `in_progress`, and `open`
+- Notification mock remains empty
+
+After `scripts/run_demo.sh`:
+- Scenario 1 creates an incident ticket routed to `identity-team`
+- Scenario 2 creates an incident ticket routed to `messaging-team`
+- Scenario 3 is rejected and creates a security review ticket routed to `security-team`
+- Notification mock shows two `team_alert` notifications and one `security_alert`
+- Jira mock shows `6` total tickets:
+  - `3` seeded historical tickets
+  - `2` new incident tickets from scenarios 1 and 2
+  - `1` security review ticket from scenario 3
+
+## Re-recording Checklist
+
+For a clean video take:
+
+1. Run `scripts/reset_state.sh`.
+2. Run `scripts/seed_demo_data.sh`.
+3. Open the Jira mock and confirm three historical tickets are visible.
+4. Open the Notification mock and confirm it is empty before the run starts.
+5. Run `scripts/run_demo.sh`.
+6. Show the Jira mock again to highlight the new Identity, EventBus, and Security tickets.
+7. Show the Notification mock to highlight the two team alerts and one security alert.
+8. Keep Langfuse running across takes; traces intentionally accumulate.
 
 ## Reviewer Takeaway
 

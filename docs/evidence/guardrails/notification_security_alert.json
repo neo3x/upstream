@@ -1,0 +1,11 @@
+{
+  "id": "NOTIF-AD8425A8",
+  "type": "security_alert",
+  "channel": "email",
+  "recipient": "security-team@example.com",
+  "subject": "[SECURITY] Suspicious incident submission - INC-22F5E87019",
+  "body": "Upstream rejected an incident submission.\n\nReporter: mallory@example.com\nIncident ID: INC-22F5E87019\nSeverity: high\nReason: Prompt injection detected. Reasons: In text: injection: ignore previous instructions; In log file: injection: ignore previous instructions; In log file: suspicious_log: SYSTEM OVERRIDE\n\nThe submission was NOT processed by the LLM. No tools were called on its behalf.",
+  "related_ticket_id": null,
+  "related_incident_id": "INC-22F5E87019",
+  "sent_at": "2026-04-09T16:20:10.538148"
+}

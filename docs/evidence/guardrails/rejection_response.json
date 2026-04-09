@@ -1,0 +1,5 @@
+{
+  "incident_id": "INC-22F5E87019",
+  "status": "rejected",
+  "reason": "Prompt injection detected. Reasons: In text: injection: ignore previous instructions; In log file: injection: ignore previous instructions; In log file: suspicious_log: SYSTEM OVERRIDE"
+}

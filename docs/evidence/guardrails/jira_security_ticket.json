@@ -1,0 +1,24 @@
+{
+  "id": "UPSTREAM-B5BD0C9A",
+  "title": "[SECURITY REVIEW] Rejected submission INC-22F5E87019",
+  "reporter": "upstream-guardrails",
+  "reporter_email": "mallory@example.com",
+  "reported_symptom": "Automated rejection by Upstream guardrails",
+  "agent_hypothesis": "Submission contained patterns consistent with prompt injection. Severity: high.",
+  "suspected_service": "n/a",
+  "blast_radius": [],
+  "severity": "high",
+  "status": "open",
+  "assigned_team": "security-team",
+  "evidence": [
+    {
+      "type": "log_excerpt",
+      "content": "Prompt injection detected. Reasons: In text: injection: ignore previous instructions; In log file: injection: ignore previous instructions; In log file: suspicious_log: SYSTEM OVERRIDE",
+      "source": "guardrails"
+    }
+  ],
+  "created_at": "2026-04-09T16:20:10.74273",
+  "updated_at": "2026-04-09T16:20:10.74273",
+  "resolution_note": null,
+  "incident_id": "INC-22F5E87019"
+}

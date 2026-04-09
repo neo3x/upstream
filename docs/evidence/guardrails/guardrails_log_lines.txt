@@ -1,0 +1,2 @@
+{"count": 3, "severity": "high", "event": "guardrails.injection_detected", "incident_id": "INC-22F5E87019", "level": "warning", "timestamp": "2026-04-09T16:20:10.362784Z"}
+{"reason": "Prompt injection detected. Reasons: In text: injection: ignore previous instructions; In log file: injection: ignore previous instructions; In log file: suspicious_log: SYSTEM OVERRIDE", "severity": "high", "event": "guardrails.rejected", "incident_id": "INC-22F5E87019", "level": "warning", "timestamp": "2026-04-09T16:20:10.362784Z"}

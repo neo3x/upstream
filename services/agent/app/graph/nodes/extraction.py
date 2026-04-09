@@ -15,10 +15,11 @@ def extraction_node(state: IncidentState) -> dict:
     log.info("extraction.parsed", log_entries=len(entries))
 
     user_msg = (
-        f"REPORTER TEXT:\n{state.get('raw_text', '')}\n\n"
-        f"LOG SUMMARY:\n{log_summary}\n\n"
-        "FULL LOG (truncated to first 200 lines):\n"
+        f"===REPORT START===\n{state.get('raw_text', '')}\n===REPORT END===\n\n"
+        f"===LOG SUMMARY START===\n{log_summary}\n===LOG SUMMARY END===\n\n"
+        "===LOG START===\n"
         + "\n".join(entry.raw for entry in entries[:200])
+        + "\n===LOG END==="
     )
 
     try:

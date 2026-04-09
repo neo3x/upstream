@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox — Notification Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+    <header class="bg-slate-900 text-white p-4 shadow">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <h1 class="text-xl font-bold">Notification Center</h1>
+            <span class="text-sm text-slate-300">Upstream SRE Triage Demo</span>
+        </div>
+    </header>
+    <main class="max-w-7xl mx-auto p-6">
+        
+<div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-slate-800">
+        Inbox
+        
+        <span class="text-base font-normal text-slate-500">(1 notification)</span>
+        
+    </h2>
+    <a href="/docs" class="text-sm text-slate-500 hover:text-slate-700">API docs</a>
+</div>
+
+<!-- Tab navigation -->
+<div class="flex gap-1 mb-6 bg-white rounded-lg shadow p-1 w-fit">
+    <button onclick="showTab('all')" id="tab-all"
+        class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition bg-slate-800 text-white">
+        All (1)
+    </button>
+    <button onclick="showTab('team_alert')" id="tab-team_alert"
+        class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+        Team Alerts (0)
+    </button>
+    <button onclick="showTab('reporter_update')" id="tab-reporter_update"
+        class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+        Reporter Updates (0)
+    </button>
+    <button onclick="showTab('security_alert')" id="tab-security_alert"
+        class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+        Security Alerts (1)
+    </button>
+</div>
+
+<!-- All notifications panel -->
+<div id="panel-all" class="tab-panel space-y-3">
+    
+    <div class="bg-white rounded-lg shadow p-4 border-l-4
+    border-red-400">
+    <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                    bg-red-100 text-red-800">
+                    security alert
+                </span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    email
+                </span>
+                <span class="text-xs font-mono text-slate-400">NOTIF-AD8425A8</span>
+            </div>
+            <p class="font-semibold text-slate-800 truncate">[SECURITY] Suspicious incident submission - INC-22F5E87019</p>
+            <p class="text-sm text-slate-500 mt-0.5">To: security-team@example.com</p>
+            <p class="text-sm text-slate-700 mt-2 whitespace-pre-line">Upstream rejected an incident submission.
+
+Reporter: mallory@example.com
+Incident ID: INC-22F5E87019
+Severity: high
+Reason: Prompt injection detected. Reasons: In text: injection: ignore previous instructions; In log file: injection: ignore previous instructions; In log file: suspicious_log: SYSTEM OVERRIDE
+
+The submission was NOT processed by the LLM. No tools were called on its behalf.</p>
+            
+            <div class="mt-2 flex gap-3 text-xs text-slate-400">
+                
+                <span>Incident: <span class="font-mono">INC-22F5E87019</span></span>
+            </div>
+            
+        </div>
+        <div class="text-xs text-slate-400 whitespace-nowrap shrink-0">2026-04-09 16:20:10.538148</div>
+    </div>
+</div>
+    
+    
+</div>
+
+<!-- Per-type panels -->
+
+<div id="panel-team_alert" class="tab-panel hidden space-y-3">
+    
+    
+    <div class="bg-white rounded-lg shadow p-8 text-center text-slate-400 italic">
+        No team alerts yet.
+    </div>
+    
+</div>
+
+<div id="panel-reporter_update" class="tab-panel hidden space-y-3">
+    
+    
+    <div class="bg-white rounded-lg shadow p-8 text-center text-slate-400 italic">
+        No reporter updates yet.
+    </div>
+    
+</div>
+
+<div id="panel-security_alert" class="tab-panel hidden space-y-3">
+    
+    <div class="bg-white rounded-lg shadow p-4 border-l-4
+    border-red-400">
+    <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                    bg-red-100 text-red-800">
+                    security alert
+                </span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    email
+                </span>
+                <span class="text-xs font-mono text-slate-400">NOTIF-AD8425A8</span>
+            </div>
+            <p class="font-semibold text-slate-800 truncate">[SECURITY] Suspicious incident submission - INC-22F5E87019</p>
+            <p class="text-sm text-slate-500 mt-0.5">To: security-team@example.com</p>
+            <p class="text-sm text-slate-700 mt-2 whitespace-pre-line">Upstream rejected an incident submission.
+
+Reporter: mallory@example.com
+Incident ID: INC-22F5E87019
+Severity: high
+Reason: Prompt injection detected. Reasons: In text: injection: ignore previous instructions; In log file: injection: ignore previous instructions; In log file: suspicious_log: SYSTEM OVERRIDE
+
+The submission was NOT processed by the LLM. No tools were called on its behalf.</p>
+            
+            <div class="mt-2 flex gap-3 text-xs text-slate-400">
+                
+                <span>Incident: <span class="font-mono">INC-22F5E87019</span></span>
+            </div>
+            
+        </div>
+        <div class="text-xs text-slate-400 whitespace-nowrap shrink-0">2026-04-09 16:20:10.538148</div>
+    </div>
+</div>
+    
+    
+</div>
+
+
+<script>
+function showTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('bg-slate-800', 'text-white');
+        b.classList.add('text-slate-600', 'hover:bg-slate-100');
+    });
+    document.getElementById('panel-' + name).classList.remove('hidden');
+    const btn = document.getElementById('tab-' + name);
+    btn.classList.add('bg-slate-800', 'text-white');
+    btn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+}
+</script>
+
+    </main>
+</body>
+</html>

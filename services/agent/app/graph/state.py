@@ -57,7 +57,12 @@ class IncidentState(TypedDict, total=False):
     # Raw input
     raw_text: str
     log_content: str
+    log_bytes_b64: Optional[str]
+    log_filename: Optional[str]
+    log_content_type: Optional[str]
     image_b64: Optional[str]
+    image_filename: Optional[str]
+    image_content_type: Optional[str]
     reporter_name: str
     reporter_email: str
 

@@ -34,17 +34,28 @@ async def submit_incident(
     incident_id = new_incident_id()
     bind_incident(incident_id)
 
-    log_content = (await log_file.read()).decode("utf-8", errors="replace")
+    log_file_bytes = await log_file.read()
+    log_content = log_file_bytes.decode("utf-8", errors="replace")
+    log_bytes_b64 = base64.b64encode(log_file_bytes).decode("ascii")
     image_b64 = None
+    image_filename = None
+    image_content_type = None
     if screenshot:
         image_bytes = await screenshot.read()
         image_b64 = base64.b64encode(image_bytes).decode("ascii")
+        image_filename = screenshot.filename
+        image_content_type = screenshot.content_type
 
     initial_state: IncidentState = {
         "incident_id": incident_id,
         "raw_text": text,
         "log_content": log_content,
+        "log_bytes_b64": log_bytes_b64,
+        "log_filename": log_file.filename,
+        "log_content_type": log_file.content_type,
         "image_b64": image_b64,
+        "image_filename": image_filename,
+        "image_content_type": image_content_type,
         "reporter_name": reporter_name,
         "reporter_email": reporter_email,
         "llm_provider": llm_provider or settings.llm_provider,

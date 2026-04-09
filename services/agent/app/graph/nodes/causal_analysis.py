@@ -75,9 +75,13 @@ def causal_analysis_node(state: IncidentState) -> dict:
     ) or "No code context available."
 
     user_msg = (
-        f"REPORTER ORIGINAL TEXT:\n{state.get('raw_text', '')}\n\n"
-        f"EXTRACTED SYMPTOMS:\n{extracted.model_dump_json(indent=2)}\n\n"
-        f"CODE CONTEXT FROM ESHOP REPOSITORY:\n{code_context}\n\n"
+        f"===REPORT START===\n{state.get('raw_text', '')}\n===REPORT END===\n\n"
+        "===EXTRACTED SYMPTOMS START===\n"
+        f"{extracted.model_dump_json(indent=2)}\n"
+        "===EXTRACTED SYMPTOMS END===\n\n"
+        "===CODE CONTEXT START===\n"
+        f"{code_context}\n"
+        "===CODE CONTEXT END===\n\n"
         "Now form your causal hypothesis. Remember: the reporter often blames the symptom, not the cause."
     )
 

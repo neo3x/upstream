@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jira Mock — Upstream</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+    <header class="bg-slate-900 text-white p-4 shadow">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <h1 class="text-xl font-bold">Jira Mock</h1>
+            <span class="text-sm text-slate-300">Upstream SRE Triage Demo</span>
+        </div>
+    </header>
+    <main class="max-w-7xl mx-auto p-6">
+        
+<div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-slate-800">Kanban Board</h2>
+    <a href="/docs" class="text-sm text-slate-500 hover:text-slate-700">API docs</a>
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+    
+    <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-lg font-semibold mb-4 capitalize flex items-center gap-2">
+            
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span>
+            
+            open
+            <span class="text-sm font-normal text-slate-500">(1)</span>
+        </h2>
+        <div class="space-y-3">
+            
+            <a href="/tickets/UPSTREAM-B5BD0C9A" class="block bg-slate-50 hover:bg-slate-100 p-3 rounded border border-slate-200 transition">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-mono text-slate-500">UPSTREAM-B5BD0C9A</span>
+                    <span class="text-xs px-2 py-0.5 rounded
+                        bg-orange-100 text-orange-800
+                        ">
+                        high
+                    </span>
+                </div>
+                <p class="font-medium text-sm">[SECURITY REVIEW] Rejected submission INC-22F5E87019</p>
+                <p class="text-xs text-slate-500 mt-1">security-team</p>
+            </a>
+            
+            
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-lg font-semibold mb-4 capitalize flex items-center gap-2">
+            
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+            
+            in progress
+            <span class="text-sm font-normal text-slate-500">(0)</span>
+        </h2>
+        <div class="space-y-3">
+            
+            
+            <p class="text-sm text-slate-400 italic text-center py-4">No tickets</p>
+            
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-lg font-semibold mb-4 capitalize flex items-center gap-2">
+            
+            <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
+            
+            resolved
+            <span class="text-sm font-normal text-slate-500">(0)</span>
+        </h2>
+        <div class="space-y-3">
+            
+            
+            <p class="text-sm text-slate-400 italic text-center py-4">No tickets</p>
+            
+        </div>
+    </div>
+    
+</div>
+
+    </main>
+</body>
+</html>

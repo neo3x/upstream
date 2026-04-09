@@ -328,6 +328,11 @@ not "free"; it is "pay differently."
 - **Default quality beats default privacy.** Claude is recommended because the
   core value of Upstream depends on contradiction-aware reasoning, while Ollama
   remains available for privacy-sensitive deployments.
+- **Guardrails favor false positives over false negatives.** The current
+  prompt-injection detector is intentionally conservative and may reject some
+  legitimate reports that contain suspicious phrasing. That trade-off is
+  acceptable for the hackathon because evaluator-visible safety matters more
+  than perfect recall on borderline submissions.
 - **Demo clarity beats production completeness.** Mocks, SQLite, and a curated
   snapshot make the system easier to review inside hackathon constraints, while
   still preserving service boundaries that can be upgraded later.

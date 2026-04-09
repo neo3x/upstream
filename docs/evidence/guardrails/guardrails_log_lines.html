@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Guardrails Structured Log Lines</title>
+<style>
+body { font-family: Consolas, monospace; background: #f8fafc; color: #0f172a; padding: 32px; }
+h1 { font-family: Segoe UI, sans-serif; }
+pre { white-space: pre-wrap; background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; font-size: 15px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<h1>Guardrails Structured Log Lines</h1>
+<pre>{"count": 3, "severity": "high", "event": "guardrails.injection_detected", "incident_id": "INC-22F5E87019", "level": "warning", "timestamp": "2026-04-09T16:20:10.362784Z"}
+{"reason": "Prompt injection detected. Reasons: In text: injection: ignore previous instructions; In log file: injection: ignore previous instructions; In log file: suspicious_log: SYSTEM OVERRIDE", "severity": "high", "event": "guardrails.rejected", "incident_id": "INC-22F5E87019", "level": "warning", "timestamp": "2026-04-09T16:20:10.362784Z"}</pre>
+</body>
+</html>

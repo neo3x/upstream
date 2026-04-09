@@ -35,6 +35,7 @@ services/jira_mock/data/*.json
 services/notification_mock/data/*.json
 indexer/data/qdrant_storage/
 *.log
+!services/agent/tests/fixtures/scenario_3_injection.log
 
 # Docker
 .docker/

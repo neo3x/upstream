@@ -1,18 +1,12 @@
-# QUICKGUIDE.md
-
 # Upstream Quick Guide
 
 ## Prerequisites
 
-- Docker and Docker Compose installed
-- At least one LLM provider configured:
-  Claude is recommended,
-  OpenAI is supported,
-  and Ollama is available for local/private deployments
-- If using Ollama,
-  make sure you have enough disk space for the first model download
+- Docker and Docker Compose
+- At least one LLM provider configured in `.env`
+- Extra disk space if you plan to use Ollama for local inference
 
-## Setup (5 minutes)
+## Setup
 
 ```bash
 git clone https://github.com/neo3x/upstream.git
@@ -20,9 +14,7 @@ cd upstream
 cp .env.example .env
 ```
 
-## Configure Your LLM Provider
-
-Open `.env` and set:
+Open `.env` and choose one provider:
 
 ```bash
 LLM_PROVIDER=claude
@@ -33,13 +25,13 @@ Supported values:
 - `claude`
 - `openai`
 - `ollama`
+- `mock`
 
-Then configure the matching credentials:
+Matching credentials:
 
-- If `LLM_PROVIDER=claude`, set `ANTHROPIC_API_KEY=...`
-- If `LLM_PROVIDER=openai`, set `OPENAI_API_KEY=...`
-- If `LLM_PROVIDER=ollama`, no cloud API key is required,
-  but the first run may download a model of roughly 5 GB
+- `claude` → set `ANTHROPIC_API_KEY`
+- `openai` → set `OPENAI_API_KEY`
+- `ollama` → no cloud key required, but the first run may download a multi-GB model
 
 ## Run
 
@@ -47,47 +39,53 @@ Then configure the matching credentials:
 docker compose up --build
 ```
 
-Wait for all services to become healthy.
-For a clean machine,
-the first build may take 3-5 minutes because images are built and the eShop
-snapshot is indexed for retrieval.
+The first build can take a few minutes because images are built and the curated
+eShop snapshot is prepared for retrieval.
 
-## Use
+## Main URLs
 
-Open these URLs after the stack starts:
+- `http://localhost:3000` — reporter UI
+- `http://localhost:3001` — Langfuse
+- `http://localhost:3100` — Jira mock
+- `http://localhost:3200` — Notification mock
 
-- `http://localhost:3000` — main reporter UI
-- `http://localhost:3100` — Jira mock board
-- `http://localhost:3200` — notification inbox
-- `http://localhost:3001` — Langfuse traces dashboard
+## Demo Flow
 
-## Try The Demo Scenarios
-
-- Pre-loaded log fixtures will live in `services/agent/tests/fixtures/`
-- Submit one through the reporter UI to trigger triage
-- Mark the created ticket as resolved in the Jira mock
-- Check the notification mock to see the reporter-facing resolution update
-
-## Reset State
-
-The intended reset helper command is:
+From the repo root:
 
 ```bash
-./scripts/reset_state.sh
+scripts/reset_state.sh
+scripts/seed_demo_data.sh
+scripts/run_demo.sh
 ```
 
-If that helper has not been added yet in the current phase,
-reset by stopping the stack and removing the relevant Docker volumes manually.
+If Claude is not configured locally, switch the scripted demo to Ollama:
 
-## Troubleshoot
+```bash
+export DEMO_LLM_PROVIDER=ollama
+scripts/run_demo.sh
+```
 
-- If `docker compose up` fails,
-  check that ports `3000`,
-  `3001`,
-  `3100`,
-  and `3200` are free
-- If Ollama fails during the first model pull,
-  check available disk space
-- Expect roughly 10 GB of free disk if you plan to experiment with local models
-- For expanded troubleshooting notes,
-  see `docs/troubleshooting.md` once that document is added
+On Windows, run the scripts above from Git Bash.
+
+## What To Expect
+
+- `reset_state.sh` clears Jira mock and Notification mock state
+- `seed_demo_data.sh` creates 3 historical Jira tickets
+- `run_demo.sh` runs the 3 core scenarios:
+  - Identity cascade
+  - Silent EventBus
+  - Prompt injection rejection
+
+After a full scripted run you should see:
+
+- 6 Jira tickets total
+- 3 notifications total
+- Langfuse traces for the processed incidents
+
+## Troubleshooting
+
+- If `docker compose up` fails, check that ports `3000`, `3001`, `3100`, and `3200` are free
+- If Ollama is slow or fails on first use, check available disk and memory
+- If the UI loads but submissions fail, verify the agent is reachable at `http://localhost:8000`
+- For more detail, see [docs/troubleshooting.md](docs/troubleshooting.md)

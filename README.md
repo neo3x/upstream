@@ -26,10 +26,16 @@ The result is a project that reads like an incident tool,
 but behaves like a careful SRE teammate who asks,
 "What does the evidence actually support?"
 
-**Status:** Documentation-first scaffold for AgentX Hackathon.
-Runtime evidence sections,
-including trace screenshots and structured log captures,
-will be completed in Phase 13 after the full workflow is implemented and tested.
+**Status:** End-to-end demo implementation complete, including guardrails,
+multi-provider LLM routing, structured observability, and evidence-backed docs.
+
+**Quick links**
+
+- Repository: <https://github.com/neo3x/upstream>
+- Demo video: [Demo video on YouTube](#)
+- Architecture diagram: [docs/evidence/architecture_diagram.png](docs/evidence/architecture_diagram.png)
+- Agent write-up: [AGENTS_USE.md](AGENTS_USE.md)
+
 ## The Problem
 ### The first minute of an incident is expensive
 The first minute of an incident decides the shape of the next hour.
@@ -206,8 +212,8 @@ It also answers:
 
 That richer output is what makes the tool useful in a real triage setting.
 ## Architecture Overview
-![Architecture](docs/architecture-diagram.png)
-_Diagram placeholder: the final architecture PNG will be generated in Phase 5._
+![Architecture](docs/evidence/architecture_diagram.png)
+_Auto-generated from the compiled LangGraph workflow and exported from the running agent._
 
 At a high level,
 Upstream is composed of one agent service,
@@ -455,17 +461,19 @@ upstream/
 | `scripts/` | Utility scripts for resets, setup, and operational helpers |
 | `phases/` | Build plan and execution phase artifacts |
 ### Why the snapshot lives in-repo
-The eShop snapshot is included as a curated subset rather than fetched on demand
-because the demo needs deterministic retrieval context.
+The eShop snapshot is included as a curated subset of the MIT-licensed
+`dotnet/eShop` reference application rather than fetched on demand because the
+demo needs deterministic retrieval context.
 That makes the hackathon setup easier to review,
 reduces external setup surprises,
 and ensures everyone sees the same service boundaries during triage.
-## Documentation
+## What's In This Repo
 The repo is intentionally documentation-heavy because the evaluation context
 is documentation-first.
 Mentors may never run the stack,
 so the docs need to communicate the system clearly on their own.
 
+- [README.md](README.md) — project overview, repo map, quick start, and submission framing
 - [AGENTS_USE.md](AGENTS_USE.md) — official AgentX-style agent write-up,
   orchestration details,
   use cases,
@@ -487,7 +495,7 @@ production-oriented pieces rather than exotic infrastructure.
 That keeps the story grounded and makes the project easier to extend after the
 hackathon.
 
-| Layer | Technology | Planned version / note | Why it is used |
+| Layer | Technology | Version / note | Why it is used |
 | --- | --- | --- | --- |
 | Primary language | Python | 3.11+ | Good ecosystem for FastAPI, LangGraph, and service glue |
 | API / service layer | FastAPI | Current stable 0.11x line planned | Clean async service boundaries and simple JSON handling |
@@ -526,7 +534,7 @@ and visible agent behavior.
 - Responsible AI explanation,
   including provider trade-offs and guardrail behavior
 ### Demo video
-[Demo video](https://youtube.com/...)
+[Demo video on YouTube](#)
 
 `#AgentXHackathon`
 ### What evaluators should understand from this repo

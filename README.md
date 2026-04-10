@@ -549,7 +549,7 @@ and visible agent behavior.
 - Responsible AI explanation,
   including provider trade-offs and guardrail behavior
 ### Demo video
-[Demo video on YouTube](#)
+[Demo video on YouTube]( <https://youtu.be/TDbzcFA7LpY>)
 
 `#AgentXHackathon`
 ### What evaluators should understand from this repo

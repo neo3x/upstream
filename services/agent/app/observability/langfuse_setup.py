@@ -14,17 +14,14 @@ from ..config import settings
 
 
 _client: Langfuse | None = None  # type: ignore[valid-type]
-_client_attempted = False
 _current_observation: ContextVar[Any | None] = ContextVar("langfuse_current_observation", default=None)
 
 
 def get_langfuse() -> Langfuse | None:  # type: ignore[valid-type]
     """Return the Langfuse client when configured, otherwise None."""
-    global _client, _client_attempted
-    if _client_attempted:
+    global _client
+    if _client is not None:
         return _client
-
-    _client_attempted = True
     if Langfuse is None:
         return None
     if not (settings.langfuse_public_key and settings.langfuse_secret_key):

@@ -8,6 +8,7 @@ Run as a build-time job — after this completes, the agent can query the collec
 """
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Iterable
 
@@ -81,6 +82,25 @@ def ensure_collection(client: QdrantClient, dim: int):
     print(f"[indexer] Collection '{COLLECTION}' created with dim={dim}")
 
 
+def wait_for_qdrant(timeout_seconds: int = 90):
+    """Wait until Qdrant is reachable before indexing."""
+    deadline = time.time() + timeout_seconds
+    last_error = None
+
+    while time.time() < deadline:
+        try:
+            client = QdrantClient(url=QDRANT_URL)
+            client.get_collections()
+            print("[indexer] Qdrant is reachable")
+            return client
+        except Exception as exc:
+            last_error = exc
+            print(f"[indexer] Waiting for Qdrant at {QDRANT_URL}...")
+            time.sleep(3)
+
+    raise RuntimeError(f"Qdrant did not become ready within {timeout_seconds}s: {last_error}")
+
+
 # ----- Manifest loading -----
 
 def load_manifest() -> dict:
@@ -125,7 +145,7 @@ def main():
 
     manifest = load_manifest()
     embedder = get_embedder()
-    client = QdrantClient(url=QDRANT_URL)
+    client = wait_for_qdrant()
     ensure_collection(client, embedder.dim)
 
     point_id = 0

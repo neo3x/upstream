@@ -354,6 +354,19 @@ docker compose up --build
 Once the stack is up,
 open <http://localhost:3000>.
 
+On Windows PowerShell,
+the same startup flow is wrapped in:
+
+```powershell
+.\scripts\start_demo_stack.ps1
+```
+
+To enable the bundled Ollama container too:
+
+```bash
+docker compose --profile ollama up --build
+```
+
 For the shorter,
 operator-oriented setup guide,
 see [QUICKGUIDE.md](QUICKGUIDE.md).
@@ -365,16 +378,18 @@ the main interfaces are:
 - Langfuse: <http://localhost:3001>
 - Jira mock: <http://localhost:3100>
 - Notification mock: <http://localhost:3200>
+- Agent health: <http://localhost:8000/health>
 ### What happens on first build
 The first build is expected to do more work than later runs.
 It needs to assemble the service images,
 prepare the self-hosted support services,
-and index the curated eShop snapshot into Qdrant
-so the agent starts with technical context already available.
+initialize Qdrant,
+run the one-shot indexer job against the curated eShop snapshot,
+and start the Langfuse stack.
 
-That build-time indexing step is intentional.
-It keeps demo startup focused on incident handling rather than on waiting for
-retrieval context to appear after boot.
+That startup sequencing is intentional:
+the agent waits for indexing to complete before it begins serving requests,
+so retrieval is ready on first use.
 ## Demo Scenarios
 The demo is organized around three scenarios.
 Each one is chosen to show a different dimension of Upstream's behavior.

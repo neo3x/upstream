@@ -1,53 +1,59 @@
-# Upstream Docker Compose
-
-version: "3.9"
+name: upstream
 
 services:
-  upstream_ui:
-    build:
-      context: services/ui
-    ports:
-      - "3000:3000"
-    environment:
-      AGENT_URL: ${UI_AGENT_URL:-http://host.docker.internal:8000}
-      JIRA_MOCK_URL_EXTERNAL: ${JIRA_MOCK_URL_EXTERNAL:-http://localhost:3100}
-      NOTIFICATION_MOCK_URL_EXTERNAL: ${NOTIFICATION_MOCK_URL_EXTERNAL:-http://localhost:3200}
-      LANGFUSE_URL_EXTERNAL: ${LANGFUSE_URL_EXTERNAL:-http://localhost:3001}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    depends_on:
-      jira_mock:
-        condition: service_healthy
-      notification_mock:
-        condition: service_healthy
+  qdrant:
+    image: qdrant/qdrant:v1.12.0
+    container_name: upstream-qdrant
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
       interval: 10s
       timeout: 5s
-      start_period: 10s
-      retries: 3
-    restart: unless-stopped
+      retries: 10
 
-  jira_mock:
+  indexer:
     build:
-      context: services/jira_mock
+      context: .
+      dockerfile: indexer/Dockerfile
+    image: upstream-indexer:latest
+    container_name: upstream-indexer
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-eshop_code}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-local}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      SNAPSHOT_PATH: /snapshot
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    restart: "no"
+
+  jira-mock:
+    build:
+      context: ./services/jira_mock
+    container_name: upstream-jira-mock
+    restart: unless-stopped
     ports:
       - "3100:3100"
+    environment:
+      AGENT_WEBHOOK_URL: http://upstream-agent:8000/webhooks/ticket-resolved
     volumes:
       - jira_mock_data:/app/data
-    environment:
-      AGENT_WEBHOOK_URL: ${AGENT_WEBHOOK_URL:-http://upstream-agent:8000/webhooks/ticket-resolved}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
       interval: 10s
       timeout: 5s
       start_period: 10s
       retries: 3
-    restart: unless-stopped
 
-  notification_mock:
+  notification-mock:
     build:
-      context: services/notification_mock
+      context: ./services/notification_mock
+    container_name: upstream-notification-mock
+    restart: unless-stopped
     ports:
       - "3200:3200"
     volumes:
@@ -58,8 +64,274 @@ services:
       timeout: 5s
       start_period: 10s
       retries: 3
+
+  upstream-agent:
+    build:
+      context: ./services/agent
+    container_name: upstream-agent
     restart: unless-stopped
+    environment:
+      LLM_PROVIDER: ${LLM_PROVIDER:-claude}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-eshop_code}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+      JIRA_MOCK_URL: http://jira-mock:3100
+      NOTIFICATION_MOCK_URL: http://notification-mock:3200
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-pk-lf-upstream-public}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-sk-lf-upstream-secret}
+      LANGFUSE_HOST: http://langfuse-web:3000
+      CHECKPOINT_DB_PATH: /app/data/checkpoints/upstream.sqlite
+    volumes:
+      - agent_data:/app/data
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      indexer:
+        condition: service_completed_successfully
+      jira-mock:
+        condition: service_healthy
+      notification-mock:
+        condition: service_healthy
+      langfuse-web:
+        condition: service_started
+
+  upstream-ui:
+    build:
+      context: ./services/ui
+    container_name: upstream-ui
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      AGENT_URL: http://upstream-agent:8000
+      JIRA_MOCK_URL_EXTERNAL: http://localhost:3100
+      NOTIFICATION_MOCK_URL_EXTERNAL: http://localhost:3200
+      LANGFUSE_URL_EXTERNAL: http://localhost:3001
+    depends_on:
+      upstream-agent:
+        condition: service_healthy
+      jira-mock:
+        condition: service_healthy
+      notification-mock:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: upstream-ollama
+    restart: unless-stopped
+    profiles: ["ollama"]
+    volumes:
+      - ollama_data:/root/.ollama
+
+  langfuse-db:
+    image: postgres:17
+    container_name: upstream-langfuse-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      TZ: UTC
+      PGTZ: UTC
+    volumes:
+      - langfuse_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24
+    container_name: upstream-clickhouse
+    restart: unless-stopped
+    user: "101:101"
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: clickhouse
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - clickhouse_logs:/var/log/clickhouse-server
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8123/ping || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 1s
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  minio:
+    image: cgr.dev/chainguard/minio
+    container_name: upstream-minio
+    restart: unless-stopped
+    entrypoint: sh
+    command: -c 'mkdir -p /data/langfuse && minio server --address ":9000" --console-address ":9001" /data'
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: miniosecret
+    volumes:
+      - langfuse_minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+      start_period: 1s
+
+  redis:
+    image: redis:7
+    container_name: upstream-redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --requirepass
+      - myredissecret
+      - --maxmemory-policy
+      - noeviction
+    volumes:
+      - langfuse_redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a myredissecret ping | grep PONG"]
+      interval: 3s
+      timeout: 10s
+      retries: 10
+
+  langfuse-worker:
+    image: langfuse/langfuse-worker:3
+    container_name: upstream-langfuse-worker
+    restart: unless-stopped
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    environment:
+      NEXTAUTH_URL: http://localhost:3001
+      DATABASE_URL: postgresql://postgres:postgres@langfuse-db:5432/postgres
+      CLICKHOUSE_URL: http://clickhouse:8123
+      CLICKHOUSE_MIGRATION_URL: clickhouse://clickhouse:9000
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: clickhouse
+      CLICKHOUSE_CLUSTER_ENABLED: "false"
+      SALT: "upstream_local_salt"
+      ENCRYPTION_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
+      TELEMETRY_ENABLED: "false"
+      LANGFUSE_USE_AZURE_BLOB: "false"
+      LANGFUSE_S3_EVENT_UPLOAD_BUCKET: "langfuse"
+      LANGFUSE_S3_EVENT_UPLOAD_REGION: "auto"
+      LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: "minio"
+      LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: "miniosecret"
+      LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_EVENT_UPLOAD_PREFIX: "events/"
+      LANGFUSE_S3_MEDIA_UPLOAD_BUCKET: "langfuse"
+      LANGFUSE_S3_MEDIA_UPLOAD_REGION: "auto"
+      LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID: "minio"
+      LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY: "miniosecret"
+      LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_MEDIA_UPLOAD_PREFIX: "media/"
+      LANGFUSE_S3_BATCH_EXPORT_ENABLED: "false"
+      LANGFUSE_S3_BATCH_EXPORT_BUCKET: "langfuse"
+      LANGFUSE_S3_BATCH_EXPORT_PREFIX: "exports/"
+      LANGFUSE_S3_BATCH_EXPORT_REGION: "auto"
+      LANGFUSE_S3_BATCH_EXPORT_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_BATCH_EXPORT_EXTERNAL_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_BATCH_EXPORT_ACCESS_KEY_ID: "minio"
+      LANGFUSE_S3_BATCH_EXPORT_SECRET_ACCESS_KEY: "miniosecret"
+      LANGFUSE_S3_BATCH_EXPORT_FORCE_PATH_STYLE: "true"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_AUTH: "myredissecret"
+      REDIS_TLS_ENABLED: "false"
+
+  langfuse-web:
+    image: langfuse/langfuse:3
+    container_name: upstream-langfuse-web
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+      langfuse-worker:
+        condition: service_started
+    environment:
+      NEXTAUTH_URL: http://localhost:3001
+      DATABASE_URL: postgresql://postgres:postgres@langfuse-db:5432/postgres
+      CLICKHOUSE_URL: http://clickhouse:8123
+      CLICKHOUSE_MIGRATION_URL: clickhouse://clickhouse:9000
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: clickhouse
+      CLICKHOUSE_CLUSTER_ENABLED: "false"
+      NEXTAUTH_SECRET: "upstream_nextauth_secret"
+      SALT: "upstream_local_salt"
+      ENCRYPTION_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
+      TELEMETRY_ENABLED: "false"
+      LANGFUSE_USE_AZURE_BLOB: "false"
+      LANGFUSE_S3_EVENT_UPLOAD_BUCKET: "langfuse"
+      LANGFUSE_S3_EVENT_UPLOAD_REGION: "auto"
+      LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: "minio"
+      LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: "miniosecret"
+      LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_EVENT_UPLOAD_PREFIX: "events/"
+      LANGFUSE_S3_MEDIA_UPLOAD_BUCKET: "langfuse"
+      LANGFUSE_S3_MEDIA_UPLOAD_REGION: "auto"
+      LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID: "minio"
+      LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY: "miniosecret"
+      LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_MEDIA_UPLOAD_PREFIX: "media/"
+      LANGFUSE_S3_BATCH_EXPORT_ENABLED: "false"
+      LANGFUSE_S3_BATCH_EXPORT_BUCKET: "langfuse"
+      LANGFUSE_S3_BATCH_EXPORT_PREFIX: "exports/"
+      LANGFUSE_S3_BATCH_EXPORT_REGION: "auto"
+      LANGFUSE_S3_BATCH_EXPORT_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_BATCH_EXPORT_EXTERNAL_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_BATCH_EXPORT_ACCESS_KEY_ID: "minio"
+      LANGFUSE_S3_BATCH_EXPORT_SECRET_ACCESS_KEY: "miniosecret"
+      LANGFUSE_S3_BATCH_EXPORT_FORCE_PATH_STYLE: "true"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_AUTH: "myredissecret"
+      REDIS_TLS_ENABLED: "false"
+      LANGFUSE_INIT_ORG_ID: "upstream"
+      LANGFUSE_INIT_ORG_NAME: "Upstream"
+      LANGFUSE_INIT_PROJECT_ID: "upstream-project"
+      LANGFUSE_INIT_PROJECT_NAME: "Upstream"
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: "pk-lf-upstream-public"
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: "sk-lf-upstream-secret"
+      LANGFUSE_INIT_USER_EMAIL: "demo@upstream.local"
+      LANGFUSE_INIT_USER_NAME: "Demo User"
+      LANGFUSE_INIT_USER_PASSWORD: "demopassword"
 
 volumes:
+  qdrant_data:
+  agent_data:
   jira_mock_data:
   notification_mock_data:
+  ollama_data:
+  langfuse_db_data:
+  clickhouse_data:
+  clickhouse_logs:
+  langfuse_minio_data:
+  langfuse_redis_data:

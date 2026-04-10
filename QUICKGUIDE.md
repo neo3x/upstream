@@ -39,8 +39,15 @@ Matching credentials:
 docker compose up --build
 ```
 
-The first build can take a few minutes because images are built and the curated
-eShop snapshot is prepared for retrieval.
+To enable the bundled Ollama container too:
+
+```bash
+docker compose --profile ollama up --build
+```
+
+The first build can take a few minutes because images are built,
+the embedding model is prepared for the indexer,
+and Langfuse takes longer than the other services to initialize.
 
 ## Main URLs
 
@@ -48,6 +55,12 @@ eShop snapshot is prepared for retrieval.
 - `http://localhost:3001` — Langfuse
 - `http://localhost:3100` — Jira mock
 - `http://localhost:3200` — Notification mock
+- `http://localhost:8000/health` — agent health check
+
+Default Langfuse login:
+
+- email: `demo@upstream.local`
+- password: `demopassword`
 
 ## Demo Flow
 
@@ -66,7 +79,15 @@ export DEMO_LLM_PROVIDER=ollama
 scripts/run_demo.sh
 ```
 
-On Windows, run the scripts above from Git Bash.
+On Windows, run the bash scripts from Git Bash.
+If you prefer native PowerShell:
+
+```powershell
+.\scripts\reset_state.ps1
+.\scripts\seed_demo_data.ps1
+$env:DEMO_LLM_PROVIDER="claude"
+.\scripts\run_demo.ps1
+```
 
 ## What To Expect
 
@@ -85,7 +106,8 @@ After a full scripted run you should see:
 
 ## Troubleshooting
 
-- If `docker compose up` fails, check that ports `3000`, `3001`, `3100`, and `3200` are free
+- If `docker compose up --build` fails, check that ports `3000`, `3001`, `3100`, `3200`, and `8000` are free
+- If Langfuse loads slowly, wait 30–60 seconds and refresh
 - If Ollama is slow or fails on first use, check available disk and memory
-- If the UI loads but submissions fail, verify the agent is reachable at `http://localhost:8000`
+- If the UI loads but submissions fail, verify the agent is reachable at `http://localhost:8000/health`
 - For more detail, see [docs/troubleshooting.md](docs/troubleshooting.md)
